@@ -1,203 +1,163 @@
 ---
 name: canvas-dock
-description: Render a hosted report/dashboard/visualization page from OpenUI Lang (default) or A2UI v0.8 by POSTing to a local Canvas Dock instance, and return a shareable URL. Use whenever the user asks for a "report", "dashboard", "page", "shareable URL", visual summary, chart, KPI tile, or anything that should live at a URL instead of inline chat. Requires a running Canvas Dock instance.
+description: Render a hosted UI page from OpenUI Lang and return a shareable URL. Use whenever the user asks for a report, dashboard, summary, page, shareable URL, chart, KPI, table, or any structured visual that should live at a URL instead of inline chat.
 ---
 
 # Canvas Dock — render a UI to a hosted URL
 
-Canvas Dock is a tiny local web app that accepts a UI payload over plain HTTP,
-renders it server-side to React, and serves the result at a stable URL like
-`<BASE_URL>/p/<slug>`. Hand the URL back to the user — they open it in any
-browser (or it auto-installs as a PWA on phone).
-
-Two payload formats are supported: **OpenUI Lang** (default — terse,
-line-oriented) and **A2UI v0.8** (JSON message stream — choose when you need
-data binding or incremental updates).
+Canvas Dock takes an OpenUI Lang source string over HTTP, renders it to React
+server-side, and serves the result at a stable URL. POST the payload, get back
+`{ url }`, hand the URL to the user.
 
 ---
 
-## 1. Define `BASE_URL` first
+## 1. BASE_URL
 
-Every endpoint in this skill is rooted at one host. **Set this once at the
-start of your session and reuse it for every request.**
+Set once at the start of the session.
 
-```bash
-# Local default:
-BASE_URL="http://localhost:10003"
-
-# Or a tailscale hostname the user gave you, e.g.:
-# BASE_URL="https://mac-mini.example.ts.net:10003"
+```
+BASE_URL = root URL of the Canvas Dock instance the user is running
 ```
 
-If you don't know which to use, ask the user. From here on every example
-references `$BASE_URL` — substitute the configured value, never hardcode
-`localhost:10003`.
-
-Quick reachability check before doing real work:
-
-```bash
-curl -fsS "$BASE_URL/api/pages" > /dev/null && echo "ok"
-```
+Ask the user if you don't have it. Every endpoint below is relative to it.
 
 ---
 
-## 2. POST a page
+## 2. Create a page
 
 ```
 POST $BASE_URL/api/pages
 Content-Type: application/json
-```
 
-### Request body
-
-```ts
 {
-  kind: "openui" | "a2ui",      // default: "openui"
-  payload: string | object,      // OpenUI Lang source (string) or A2UI envelope (object)
-  title?: string,                // shown in browser tab
-  theme?: string,                // see "Themes" below; defaults to instance default
-  project?: string,              // optional project id (inherits theme/TTL)
-  ttlSeconds?: number | null     // expiry seconds; null = never
+  "kind": "openui",              // required; default path
+  "payload": "<OpenUI Lang source>",
+  "title": "...",                // optional; browser tab title
+  "theme": "...",                // optional; see §4
+  "ttlSeconds": 86400            // optional; null = never expire
 }
 ```
 
-### Response
+Response:
 
 ```json
-{
-  "slug": "u8QmLZMfSj",
-  "url": "<BASE_URL>/p/u8QmLZMfSj",
-  "expiresAt": "2026-06-01T11:01:54Z"
-}
+{ "slug": "...", "url": "<BASE_URL>/p/...", "expiresAt": "..." | null }
 ```
 
-Give the user `url`. That's it.
+Hand `url` to the user.
+
+Errors: HTTP 400 → `{ "error": "...", "issues": [...zod issues] }`. See §6.
 
 ---
 
-## 3. Default path: OpenUI Lang
+## 3. OpenUI Lang
 
-Set `kind: "openui"`. `payload` is a single string of OpenUI Lang source.
+`payload` is a single string of source. Each line: `id = ComponentName(arg1, arg2, ...)`.
 
-### ⚠️ Critical syntax rule
+### Syntax rules
 
-OpenUI Lang uses **positional arguments only**. Each component's signature
-specifies the order — trailing optional args may be omitted.
+- **Positional arguments only.** ✅ `Stack([a, b], "row", 4)` ❌ `Stack(direction: "row", children: [a, b])` (colon syntax silently breaks).
+- Trailing optional args may be omitted; pass `null` to skip an optional arg in the middle of the list.
+- A `root = ...` statement is required.
+- Every defined id must be reachable from `root`; orphans are silently dropped.
+- Strings: double-quoted with backslash escapes. Numbers, booleans, `null` are bare.
+- Arrays: `[v, v, ...]`. Inline object literals: `{key: value, key: value}`.
+- Reference another statement by writing its id bareword (no quotes).
+- One statement per line.
 
-✅ `Stack([hdr, body], "row", 4)`
-❌ `Stack(direction: "row", children: [hdr, body])` — **colon syntax silently breaks**
+### Component reference
 
-Other rules:
-- Each line: `id = ComponentName(arg1, arg2, ...)` (whitespace around `=`)
-- Must have a `root = ...` line; that's where the page renders from
-- Every defined `id` must be referenced from somewhere reachable by `root` — orphans are silently dropped
-- Strings use double quotes. Arrays use `[...]`. Inline object literals use `{key: value, ...}` (commas separate fields)
-- Reference another statement by writing its id bareword — no quotes
+39 components organized into 6 groups. Names are case-sensitive. Optional
+arguments are followed by `?` in the signature.
 
-### Component library
+Interactive components (Button, Tabs, Accordion, Pagination, Tooltip,
+Breadcrumb) render statically — they look correct but don't run client-side
+behavior. Form inputs (text fields, checkboxes, selects) are intentionally
+omitted because the rendered page is static; for data capture, send the user
+to a different tool.
 
-| Component | Signature | Notes |
-|---|---|---|
-| `Stack` | `Stack(children, direction?, gap?, align?, justify?, wrap?)` | container. direction ∈ `row`/`column` (default column). gap 0–16. row layouts wrap by default on mobile |
-| `Heading` | `Heading(text, level?)` | level 1–4, default 2 |
-| `Text` | `Text(text, muted?)` | muted=true → secondary color |
-| `Card` | `Card(children, title?, description?)` | bordered tile |
-| `Stat` | `Stat(label, value, delta?, trend?)` | KPI. trend ∈ `up`/`down`/`flat` |
-| `Chart` | `Chart(type, data, xKey?, yKey?, nameKey?, valueKey?, height?)` | type ∈ `bar`/`line`/`pie` |
-| `Table` | `Table(columns, rows)` | columns=[{key,label,align?}], rows=[{...}] |
-| `Divider` | `Divider()` | hr |
-| `Badge` | `Badge(text, tone?)` | tone ∈ `default`/`success`/`warn`/`error` |
+#### Layout (7)
 
-### Example 1 — minimal page
+| Component | Signature |
+|---|---|
+| `Stack` | `Stack(children, direction?, gap?, align?, justify?, wrap?)` — direction ∈ `row`/`column` (default `column`). gap 0–16 (default 4). align ∈ `start`/`center`/`end`/`stretch` (default `stretch`). justify ∈ `start`/`center`/`end`/`between` (default `start`). Row layouts wrap by default on mobile. |
+| `Container` | `Container(children, size?)` — centered max-width wrapper. size ∈ `sm`/`md`/`lg`/`xl`/`2xl`/`full` (default `lg`). |
+| `Grid` | `Grid(children, columns?, gap?)` — responsive grid. columns 1–6 (default 2). gap 0–16 (default 4). |
+| `Spacer` | `Spacer(size?, axis?)` — empty space. size 0–16 (default 4). axis ∈ `vertical`/`horizontal` (default `vertical`). |
+| `AspectRatio` | `AspectRatio(children, ratio?)` — ratio ∈ `16:9`/`4:3`/`1:1`/`3:2`/`21:9` (default `16:9`). |
+| `ScrollArea` | `ScrollArea(children, maxHeight?)` — scrollable region. maxHeight px (default 480). |
+| `Divider` | `Divider()` — horizontal rule. |
 
-```bash
-curl -X POST "$BASE_URL/api/pages" \
-  -H 'content-type: application/json' \
-  -d '{
-    "kind": "openui",
-    "title": "Hello",
-    "payload": "root = Heading(\"Hello, world\", 1)"
-  }'
-```
+#### Typography (8)
 
-### Example 2 — KPI dashboard
+| Component | Signature |
+|---|---|
+| `Heading` | `Heading(text, level?)` — level ∈ `1`/`2`/`3`/`4` (default `2`). |
+| `Text` | `Text(text, muted?)` — muted=true → secondary color. |
+| `Lead` | `Lead(text)` — larger intro paragraph. |
+| `Quote` | `Quote(text, cite?)` — blockquote. |
+| `Code` | `Code(text)` — inline code. |
+| `CodeBlock` | `CodeBlock(text, language?)` — block code. language is a CSS class hint, no actual highlighting. |
+| `Link` | `Link(text, href, external?)` — external=true opens in new tab. |
+| `Kbd` | `Kbd(text)` — keyboard key. |
 
-Source:
+#### Surfaces (6)
 
-```
-root = Stack([h, kpis, byRegion], "column", 6)
-h = Heading("Q2 Sales", 1)
-kpis = Stack([s1, s2, s3], "row", 4)
-s1 = Stat("Revenue", "$1.24M", "+12%", "up")
-s2 = Stat("New customers", 312, "+8%", "up")
-s3 = Stat("Churn", "2.1%", "-0.4pp", "down")
-byRegion = Card([chart], "By region")
-chart = Chart("bar", [{name: "JP", value: 420}, {name: "US", value: 510}, {name: "EU", value: 310}], "name", "value")
-```
+| Component | Signature |
+|---|---|
+| `Card` | `Card(children, title?, description?)` — bordered tile. |
+| `Alert` | `Alert(children, title?, variant?)` — variant ∈ `info`/`warn`/`error`/`success` (default `info`). |
+| `Badge` | `Badge(text, tone?)` — tone ∈ `default`/`success`/`warn`/`error` (default `default`). |
+| `Avatar` | `Avatar(name, src?, size?)` — initials fallback if no src. size ∈ `sm`/`md`/`lg` (default `md`). |
+| `Hero` | `Hero(title, subtitle?, children?)` — large header block. |
+| `EmptyState` | `EmptyState(title, description?, icon?, children?)` — icon is an emoji string. |
 
-POSTed:
+#### Data display (8)
+
+| Component | Signature |
+|---|---|
+| `Stat` | `Stat(label, value, delta?, trend?)` — KPI tile. value: string or number. trend ∈ `up`/`down`/`flat`. |
+| `Chart` | `Chart(type, data, xKey?, yKey?, nameKey?, valueKey?, height?)` — type ∈ `bar`/`line`/`pie`. data=[{...}]. yKey: string or [string,...] for multi-series. nameKey/valueKey: pie only. height 120–720 (default 280). |
+| `Table` | `Table(columns, rows)` — columns=[{key, label, align?}] (align ∈ `left`/`right`/`center`). rows=[{[k]:v}]. |
+| `BulletList` | `BulletList(items)` — items: array of strings. |
+| `NumberList` | `NumberList(items)` — items: array of strings. |
+| `DefinitionList` | `DefinitionList(items)` — items=[{term, definition}]. |
+| `Progress` | `Progress(value, label?)` — value 0–100. |
+| `Timeline` | `Timeline(items)` — items=[{date, title, description?}]. |
+
+#### Interactive — statically rendered (7)
+
+| Component | Signature |
+|---|---|
+| `Button` | `Button(text, variant?, size?, href?, external?)` — variant ∈ `default`/`secondary`/`outline`/`ghost`/`destructive`/`link`. size ∈ `sm`/`md`/`lg`. href→renders as anchor. |
+| `Tabs` | `Tabs(items)` — items=[{label, content}]. content is a component id reference. Only the first tab's content is shown. |
+| `Accordion` | `Accordion(items, defaultOpen?)` — items=[{title, content}]. content is a component id reference. Uses native `<details>`; defaultOpen (default true). |
+| `Breadcrumb` | `Breadcrumb(items)` — items=[{text, href?}]. |
+| `Tooltip` | `Tooltip(text, hint)` — text with browser-native hover hint. |
+| `Pagination` | `Pagination(current, total)` — static page numbers. |
+| `Skeleton` | `Skeleton(width?, height?, count?)` — loading placeholder bars. |
+
+#### Media (3)
+
+| Component | Signature |
+|---|---|
+| `Image` | `Image(src, alt?, rounded?, width?, height?)` — rounded default true. |
+| `Video` | `Video(src, poster?, autoplay?, loop?)` — always rendered with controls. |
+| `Iframe` | `Iframe(src, title?, height?)` — external embed. height in pixels (default 400). |
+
+### Minimal example
 
 ```json
 {
   "kind": "openui",
-  "title": "Q2 Sales",
-  "theme": "stripe",
-  "payload": "root = Stack([h, kpis, byRegion], \"column\", 6)\nh = Heading(\"Q2 Sales\", 1)\nkpis = Stack([s1, s2, s3], \"row\", 4)\ns1 = Stat(\"Revenue\", \"$1.24M\", \"+12%\", \"up\")\ns2 = Stat(\"New customers\", 312, \"+8%\", \"up\")\ns3 = Stat(\"Churn\", \"2.1%\", \"-0.4pp\", \"down\")\nbyRegion = Card([chart], \"By region\")\nchart = Chart(\"bar\", [{name: \"JP\", value: 420}, {name: \"US\", value: 510}, {name: \"EU\", value: 310}], \"name\", \"value\")"
+  "title": "Hi",
+  "payload": "root = Stack([h, b], \"column\", 4)\nh = Heading(\"Hello\", 1)\nb = Text(\"World\")"
 }
 ```
 
-### Example 3 — report with table
-
-```
-root = Stack([h, intro, t, foot], "column", 6)
-h = Heading("Vendor scorecard", 1)
-intro = Text("Top 5 suppliers, ranked by on-time delivery rate over the last 90 days.", true)
-t = Table([{key: "name", label: "Vendor"}, {key: "onTime", label: "On-time %", align: "right"}, {key: "incidents", label: "Incidents", align: "right"}], [{name: "Acme", onTime: "98%", incidents: 2}, {name: "Globex", onTime: "94%", incidents: 5}, {name: "Initech", onTime: "91%", incidents: 7}, {name: "Soylent", onTime: "88%", incidents: 9}, {name: "Umbrella", onTime: "76%", incidents: 18}])
-foot = Text("Source: shipments table, query run 2026-05-25.", true)
-```
-
 ---
 
-## 4. Alternative: A2UI v0.8
-
-Use when you need fine-grained data binding (JSON Pointer references), or
-plan to push incremental updates to the same page over time.
-
-Set `kind: "a2ui"`. `payload` is an object:
-
-```bash
-curl -X POST "$BASE_URL/api/pages" \
-  -H 'content-type: application/json' \
-  -d '{
-    "kind": "a2ui",
-    "title": "Q2 Sales",
-    "payload": {
-      "messages": [
-        { "type": "createSurface", "surfaceId": "main", "catalogId": "canvas-dock", "root": "root" },
-        { "type": "updateDataModel", "surfaceId": "main", "value": { "revenue": "$1.24M" } },
-        { "type": "updateComponents", "surfaceId": "main", "components": [
-          { "id": "root", "type": "Column", "props": {"gap": 6}, "children": ["h", "rev"] },
-          { "id": "h", "type": "Heading", "props": {"level": 1, "text": "Q2 Sales"} },
-          { "id": "rev", "type": "Stat", "props": {"label": "Revenue", "value": {"path": "/revenue"}} }
-        ]}
-      ]
-    }
-  }'
-```
-
-Component types: `Text`, `Heading`, `Row`, `Column`, `List`, `Card`, `Stat`,
-`Chart`, `Table`, `Divider`, `Badge`, `Image`.
-
-Any prop value may be a literal or a binding object:
-- `{ "literal": ... }` — explicit literal
-- `{ "path": "/foo/bar" }` — JSON Pointer into the data model
-
-Incremental update later: `PATCH $BASE_URL/api/pages/<slug>` body
-`{ payload: <new messages> }`.
-
----
-
-## 5. Themes
+## 4. Themes
 
 Pass one as `theme`:
 
@@ -211,55 +171,30 @@ Pass one as `theme`:
 | `supabase` | dark, green accents |
 | `apple` | bright, rounded |
 
-Omit `theme` to use the instance default (settable in the dashboard).
+Omit `theme` to use the instance default.
 
 ---
 
-## 6. Projects
-
-If the user organizes work into "projects" (e.g. one per agent or use case),
-pass `project: "<id>"` and Canvas Dock will inherit that project's theme +
-TTL overrides. Discover them with `GET $BASE_URL/api/settings/projects`.
-
----
-
-## 7. Other endpoints
-
-All relative to `$BASE_URL`.
+## 5. Updating, deleting, listing
 
 | Method + path | Purpose |
 |---|---|
-| `GET /api/pages` | list all hosted pages |
-| `GET /api/pages/<slug>` | fetch a page record (payload + metadata) |
-| `PATCH /api/pages/<slug>` body `{ payload }` | replace content in place; URL stays |
-| `DELETE /api/pages/<slug>` | remove now |
-| `GET /api/settings` | read instance global config (default theme, TTL, auth) |
-| `GET /api/settings/projects` | list projects |
+| `GET    $BASE_URL/api/pages` | list all hosted pages |
+| `GET    $BASE_URL/api/pages/<slug>` | fetch a page record (full payload + metadata) |
+| `PATCH  $BASE_URL/api/pages/<slug>` body `{ payload }` | replace content in place; URL stays |
+| `DELETE $BASE_URL/api/pages/<slug>` | remove |
 
 ---
 
-## 8. Self-correction
+## 6. Errors
 
-On `HTTP 400` the response body is `{ error, issues: [...] }` where `issues`
-is a Zod issue array. Common causes:
+HTTP 400 → response body is `{ error, issues: [...] }` (Zod issue array).
+Common failures:
 
-- **OpenUI Lang colon syntax** — rewrite as positional
-- **Unknown component name** — check the table above; matches are case-sensitive
-- **Missing `root`** — OpenUI Lang needs `root = ...`
-- **`children` field is not an array of ids** — wrap in `[id1, id2]`
-- **A2UI: surface/component id mismatch** — every `children: ["x"]` must reference a component with `id: "x"`
+- Used colon syntax (`name: value` in component args) — rewrite as positional.
+- Unknown component name — must match the reference above exactly (case-sensitive).
+- Missing `root = ...` line.
+- `children` is not an array of ids — wrap in `[id1, id2]`.
+- Required arg missing — check the signature.
 
-Try once with corrections; if it still fails, hand the error back to the user.
-
----
-
-## Quick checklist before posting
-
-- [ ] `BASE_URL` is set
-- [ ] `kind: "openui"` unless the user explicitly wants A2UI
-- [ ] OpenUI Lang uses positional args, has a `root = ...` line, every id is referenced
-- [ ] `title` set so the browser tab is meaningful
-- [ ] (Optional) `theme` chosen to match the content tone
-- [ ] (Optional) `ttlSeconds` set if the page should outlive the default 7 days
-
-Then `POST $BASE_URL/api/pages` and hand the returned `url` to the user.
+Fix once and retry; if it still fails, hand the error back to the user.

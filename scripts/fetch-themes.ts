@@ -54,13 +54,13 @@ async function main() {
     process.stdout.write(`fetching ${slug}… `);
     const entry = await fetchTheme(slug);
     const css = buildCss(slug, entry);
-    const dir = path.join(root, "themes", slug);
+    const dir = path.join(root, "src", "themes", slug);
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, "theme.css"), css);
     process.stdout.write("ok\n");
   }
   // Aggregator that globals.css can @import.
-  const aggregator = THEMES.map((s) => `@import "../../themes/${s}/theme.css";`).join("\n") + "\n";
+  const aggregator = THEMES.map((s) => `@import "../themes/${s}/theme.css";`).join("\n") + "\n";
   await fs.writeFile(path.join(root, "src", "lib", "themes.css"), aggregator);
   console.log(`\nwrote ${THEMES.length} themes + src/lib/themes.css`);
 }

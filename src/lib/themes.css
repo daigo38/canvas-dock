@@ -1,6 +1,6 @@
-@import "../../themes/linear/theme.css";
-@import "../../themes/vercel/theme.css";
-@import "../../themes/notion/theme.css";
-@import "../../themes/stripe/theme.css";
-@import "../../themes/supabase/theme.css";
-@import "../../themes/apple/theme.css";
+@import "../themes/linear/theme.css";
+@import "../themes/vercel/theme.css";
+@import "../themes/notion/theme.css";
+@import "../themes/stripe/theme.css";
+@import "../themes/supabase/theme.css";
+@import "../themes/apple/theme.css";

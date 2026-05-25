@@ -11,7 +11,7 @@ import {
   DataTable,
   Divider,
   Badge,
-} from "@/renderer/shared/primitives";
+} from "@/renderer/shared/themed";
 import {
   A2UIPayload,
   A2UIPayloadSchema,

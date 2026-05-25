@@ -47,6 +47,32 @@ curl -X POST http://localhost:3000/api/pages \
 
 Response: `{ "slug": "...", "url": "http://localhost:3000/p/...", "expiresAt": "..." }`
 
+### Render the component gallery
+
+`samples/gallery.openui` is a complete tour of every OpenUI Lang component
+Canvas Dock supports (39 components across 6 groups). POST it to your running
+instance to get a single page that shows them all:
+
+```bash
+BASE_URL="http://localhost:3000"
+
+# With jq:
+jq -Rs --arg title "Canvas Dock — Component Gallery" \
+   '{kind:"openui", title:$title, payload:.}' \
+   samples/gallery.openui \
+  | curl -X POST "$BASE_URL/api/pages" \
+      -H 'content-type: application/json' \
+      --data-binary @-
+
+# Or with Node (no jq required):
+node -e "console.log(JSON.stringify({kind:'openui',title:'Canvas Dock — Component Gallery',payload:require('fs').readFileSync('samples/gallery.openui','utf8')}))" \
+  | curl -X POST "$BASE_URL/api/pages" \
+      -H 'content-type: application/json' \
+      --data-binary @-
+```
+
+The response body has the URL — open it to see every component in context.
+
 ### Connect from an MCP client
 
 Streamable HTTP transport:

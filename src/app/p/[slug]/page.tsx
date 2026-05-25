@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getPage } from "@/lib/store";
 import { RenderOpenUI } from "@/renderer/openui/RenderOpenUI";
 import { RenderA2UI } from "@/renderer/a2ui/RenderA2UI";
+import { ThemedShell } from "@/renderer/shared/ThemedShell";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -15,11 +16,13 @@ export default async function HostedPage({ params }: { params: Promise<{ slug: s
   return (
     <div className={cn("min-h-screen w-full bg-background text-foreground", `theme-${page.theme}`)}>
       <main className="mx-auto max-w-5xl py-10 px-4 md:px-8">
-        {page.kind === "openui" ? (
-          <RenderOpenUI source={String(page.payload ?? "")} />
-        ) : (
-          <RenderA2UI payload={page.payload} />
-        )}
+        <ThemedShell theme={page.theme}>
+          {page.kind === "openui" ? (
+            <RenderOpenUI source={String(page.payload ?? "")} />
+          ) : (
+            <RenderA2UI payload={page.payload} />
+          )}
+        </ThemedShell>
       </main>
     </div>
   );
