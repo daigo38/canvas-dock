@@ -65,7 +65,8 @@ function renderComponent(
           gap={(p.gap as number) ?? 4}
           align={(p.align as "start" | "center" | "end" | "stretch") ?? "center"}
           justify={(p.justify as "start" | "center" | "end" | "between") ?? "start"}
-          wrap={Boolean(p.wrap)}
+          // Leave undefined when caller didn't specify — Stack defaults row→wrap on mobile.
+          wrap={p.wrap === undefined ? undefined : Boolean(p.wrap)}
         >
           {kids}
         </Stack>
@@ -143,12 +144,12 @@ export function RenderA2UI({ payload }: { payload: unknown }) {
     return <div className="p-4 text-sm text-muted-foreground">No surface to render.</div>;
   }
   return (
-    <div className="flex flex-col gap-8 p-6 md:p-10">
+    <div className="flex flex-col gap-8 p-4 sm:p-6 md:p-10 w-full max-w-full overflow-x-clip">
       {surfaceIds.map((sid) => {
         const surface = state.surfaces[sid];
         const components = state.components[sid] ?? {};
         return (
-          <section key={sid}>
+          <section key={sid} className="w-full min-w-0">
             {renderComponent(surface.root, components, surface.dataModel)}
           </section>
         );

@@ -34,20 +34,32 @@ export const Stack: React.FC<{
   justify?: "start" | "center" | "end" | "between";
   wrap?: boolean;
   children?: React.ReactNode;
-}> = ({ direction = "column", gap = 4, align = "stretch", justify = "start", wrap = false, children }) => (
-  <div
-    className={cn(
-      "flex",
-      direction === "row" ? "flex-row" : "flex-col",
-      wrap && "flex-wrap",
-      `gap-${gap}`,
-      { start: "items-start", center: "items-center", end: "items-end", stretch: "items-stretch" }[align],
-      { start: "justify-start", center: "justify-center", end: "justify-end", between: "justify-between" }[justify],
-    )}
-  >
-    {children}
-  </div>
-);
+}> = ({ direction = "column", gap = 4, align = "stretch", justify = "start", wrap, children }) => {
+  // Row layouts wrap by default so phones don't get horizontal overflow.
+  // The caller can still set wrap={false} explicitly to opt out.
+  const shouldWrap = wrap ?? direction === "row";
+  // Tailwind v4 needs literal class names — pre-build the gap map so JIT picks them up.
+  const gapClass = (
+    { 0: "gap-0", 1: "gap-1", 2: "gap-2", 3: "gap-3", 4: "gap-4", 5: "gap-5", 6: "gap-6", 8: "gap-8", 10: "gap-10", 12: "gap-12", 16: "gap-16" } as Record<number, string>
+  )[gap] ?? "gap-4";
+  return (
+    <div
+      className={cn(
+        "flex max-w-full",
+        direction === "row" ? "flex-row" : "flex-col",
+        shouldWrap && "flex-wrap",
+        // Lets children (e.g. Cards holding long Text) shrink below their content width
+        // instead of pushing the parent past the viewport.
+        "[&>*]:min-w-0",
+        gapClass,
+        { start: "items-start", center: "items-center", end: "items-end", stretch: "items-stretch" }[align],
+        { start: "justify-start", center: "justify-center", end: "justify-end", between: "justify-between" }[justify],
+      )}
+    >
+      {children}
+    </div>
+  );
+};
 
 export const Heading: React.FC<{ level?: 1 | 2 | 3 | 4; children?: React.ReactNode }> = ({ level = 2, children }) => {
   const cls = {

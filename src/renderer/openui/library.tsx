@@ -14,40 +14,43 @@ import {
   Badge as BadgePrim,
 } from "@/renderer/shared/primitives";
 
+// IMPORTANT: OpenUI Lang uses POSITIONAL arguments. The order in `z.object`
+// below IS the call signature. Put `children` first for any container so
+// authors can write `Stack([a, b], "row")` and `Card([t], "title")`.
+
 const Stack = defineComponent({
   name: "Stack",
   description:
-    "Vertical/horizontal flex container. Use direction='row' for horizontal. Wraps children with consistent gap.",
+    "Vertical/horizontal flex container. Signature: Stack(children, direction?, gap?, align?, justify?, wrap?). Use direction='row' for horizontal.",
   props: z.object({
+    children: z.array(z.any()).optional(),
     direction: z.enum(["row", "column"]).default("column"),
     gap: z.number().int().min(0).max(16).default(4),
     align: z.enum(["start", "center", "end", "stretch"]).default("stretch"),
     justify: z.enum(["start", "center", "end", "between"]).default("start"),
-    wrap: z.boolean().default(false),
-    children: z.array(z.any()).optional(),
+    // Leave optional so the primitive can default row→wrap (mobile-safe).
+    wrap: z.boolean().optional(),
   }),
   component: ({ props, renderNode }) => (
     <StackPrim direction={props.direction} gap={props.gap} align={props.align} justify={props.justify} wrap={props.wrap}>
-      {(props.children ?? []).map((c, i) => (
-        <div key={i}>{renderNode(c)}</div>
-      ))}
+      {renderNode(props.children)}
     </StackPrim>
   ),
 });
 
 const Heading = defineComponent({
   name: "Heading",
-  description: "Section heading. Level 1 (page title) → 4 (small).",
+  description: "Section heading. Signature: Heading(text, level?). Level 1 (page title) → 4 (small).",
   props: z.object({
-    level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).default(2),
     text: z.string(),
+    level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).default(2),
   }),
   component: ({ props }) => <HeadingPrim level={props.level}>{props.text}</HeadingPrim>,
 });
 
 const Text = defineComponent({
   name: "Text",
-  description: "Body paragraph. Use muted=true for secondary text.",
+  description: "Body paragraph. Signature: Text(text, muted?). Use muted=true for secondary text.",
   props: z.object({
     text: z.string(),
     muted: z.boolean().default(false),
@@ -57,24 +60,22 @@ const Text = defineComponent({
 
 const Card = defineComponent({
   name: "Card",
-  description: "Bordered card with optional title/description and slot for children.",
+  description: "Bordered card with optional title/description. Signature: Card(children, title?, description?).",
   props: z.object({
+    children: z.array(z.any()).optional(),
     title: z.string().optional(),
     description: z.string().optional(),
-    children: z.array(z.any()).optional(),
   }),
   component: ({ props, renderNode }) => (
     <CardPrim title={props.title} description={props.description}>
-      {(props.children ?? []).map((c, i) => (
-        <div key={i}>{renderNode(c)}</div>
-      ))}
+      {renderNode(props.children)}
     </CardPrim>
   ),
 });
 
 const Stat = defineComponent({
   name: "Stat",
-  description: "KPI tile with label, big numeric value, optional delta and trend indicator.",
+  description: "KPI tile. Signature: Stat(label, value, delta?, trend?). trend ∈ up|down|flat.",
   props: z.object({
     label: z.string(),
     value: z.union([z.string(), z.number()]),
@@ -87,7 +88,7 @@ const Stat = defineComponent({
 const Chart = defineComponent({
   name: "Chart",
   description:
-    "Data visualization. type=bar|line|pie. For bar/line: provide xKey + yKey (string or array of strings). For pie: provide nameKey + valueKey.",
+    "Data visualization. Signature: Chart(type, data, xKey?, yKey?, nameKey?, valueKey?, height?). type ∈ bar|line|pie.",
   props: z.object({
     type: z.enum(["bar", "line", "pie"]),
     data: z.array(z.record(z.string(), z.union([z.string(), z.number()]))),
@@ -112,7 +113,7 @@ const Chart = defineComponent({
 
 const Table = defineComponent({
   name: "Table",
-  description: "Tabular data. columns: array of {key,label,align?}. rows: array of objects keyed by column.key.",
+  description: "Tabular data. Signature: Table(columns, rows). columns=[{key,label,align?}], rows=[{...}].",
   props: z.object({
     columns: z.array(
       z.object({
@@ -128,14 +129,14 @@ const Table = defineComponent({
 
 const Divider = defineComponent({
   name: "Divider",
-  description: "Horizontal rule between sections.",
+  description: "Horizontal rule between sections. Signature: Divider().",
   props: z.object({}),
   component: () => <DividerPrim />,
 });
 
 const Badge = defineComponent({
   name: "Badge",
-  description: "Inline status pill.",
+  description: "Inline status pill. Signature: Badge(text, tone?). tone ∈ default|success|warn|error.",
   props: z.object({
     text: z.string(),
     tone: z.enum(["default", "success", "warn", "error"]).default("default"),
