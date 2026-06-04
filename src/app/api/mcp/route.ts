@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { buildMcpServer } from "@/mcp/server";
+import { withApiLogging } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,13 +21,13 @@ async function handle(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  return handle(req);
+  return withApiLogging(req, "GET /api/mcp", () => handle(req));
 }
 
 export async function POST(req: NextRequest) {
-  return handle(req);
+  return withApiLogging(req, "POST /api/mcp", () => handle(req));
 }
 
 export async function DELETE(req: NextRequest) {
-  return handle(req);
+  return withApiLogging(req, "DELETE /api/mcp", () => handle(req));
 }
