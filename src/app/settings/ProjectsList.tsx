@@ -8,7 +8,7 @@ import type { ThemeManifest } from "@/lib/themes";
 export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; themes: ThemeManifest[] }) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
-  const [draft, setDraft] = useState({ id: "", label: "", theme: "" });
+  const [draft, setDraft] = useState({ label: "", theme: "" });
   const [pending, startTransition] = useTransition();
 
   function save() {
@@ -17,13 +17,12 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          id: draft.id,
-          label: draft.label || draft.id,
+          label: draft.label || undefined,
           theme: draft.theme || undefined,
         }),
       });
       if (res.ok) {
-        setDraft({ id: "", label: "", theme: "" });
+        setDraft({ label: "", theme: "" });
         setAdding(false);
         router.refresh();
       }
@@ -47,7 +46,6 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="px-4 py-2 text-left font-medium">ID</th>
               <th className="px-4 py-2 text-left font-medium">Label</th>
               <th className="px-4 py-2 text-left font-medium">Theme</th>
               <th className="px-4 py-2 text-left font-medium">TTL</th>
@@ -57,7 +55,6 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
           <tbody>
             {projects.map((p) => (
               <tr key={p.id} className="border-t border-border">
-                <td className="px-4 py-2 font-mono text-xs">{p.id}</td>
                 <td className="px-4 py-2">{p.label}</td>
                 <td className="px-4 py-2">{p.theme ?? <span className="text-muted-foreground">inherit</span>}</td>
                 <td className="px-4 py-2 text-xs text-muted-foreground">
@@ -79,13 +76,7 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
 
       <div className="border-t border-border p-4">
         {adding ? (
-          <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
-            <input
-              placeholder="id (e.g. local-ai)"
-              value={draft.id}
-              onChange={(e) => setDraft({ ...draft, id: e.target.value })}
-              className="rounded-md border border-border bg-background px-2 py-1 text-sm font-mono"
-            />
+          <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto_auto]">
             <input
               placeholder="label"
               value={draft.label}
@@ -106,7 +97,7 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
             </select>
             <button
               onClick={save}
-              disabled={pending || !draft.id}
+              disabled={pending}
               className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
             >
               Save

@@ -1,10 +1,12 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { customAlphabet } from "nanoid";
 import { z } from "zod";
 
 const DATA_DIR = path.resolve(process.cwd(), "data");
 const CONFIG_PATH = path.join(DATA_DIR, "config.json");
 const PROJECTS_DIR = path.join(DATA_DIR, "projects");
+const createProjectId = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
 
 export const GlobalConfigSchema = z.object({
   defaultTheme: z.string().default("default"),
@@ -26,6 +28,10 @@ export const ProjectConfigSchema = z.object({
 });
 
 export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
+
+export const ProjectConfigInputSchema = ProjectConfigSchema.omit({ id: true, createdAt: true }).extend({
+  label: z.string().min(1).optional(),
+});
 
 async function ensureDirs() {
   await fs.mkdir(DATA_DIR, { recursive: true });
@@ -80,6 +86,25 @@ export async function getProject(id: string): Promise<ProjectConfig | null> {
     if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw err;
   }
+}
+
+async function generateUniqueProjectId(): Promise<string> {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const id = createProjectId();
+    if (!(await getProject(id))) return id;
+  }
+  return createProjectId(10);
+}
+
+export async function createProject(
+  input: z.infer<typeof ProjectConfigInputSchema>,
+): Promise<ProjectConfig> {
+  const id = await generateUniqueProjectId();
+  return upsertProject({
+    ...input,
+    id,
+    label: input.label?.trim() || id,
+  });
 }
 
 export async function upsertProject(p: Omit<ProjectConfig, "createdAt"> & { createdAt?: string }): Promise<ProjectConfig> {
