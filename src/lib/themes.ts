@@ -1,3 +1,5 @@
+import { BETTER_DESIGN_THEMES } from "./betterDesignCatalog";
+
 export interface ThemeManifest {
   id: string;
   label: string;
@@ -5,14 +7,10 @@ export interface ThemeManifest {
   description: string;
 }
 
-export const THEMES: ThemeManifest[] = [
-  { id: "linear", label: "Linear", source: "better-design", description: "Dark developer-tool, purple primary." },
-  { id: "vercel", label: "Vercel", source: "better-design", description: "Minimal black & white." },
-  { id: "notion", label: "Notion", source: "better-design", description: "Document-style, warm neutrals." },
-  { id: "stripe", label: "Stripe", source: "better-design", description: "Commercial dashboard, blue primary." },
-  { id: "supabase", label: "Supabase", source: "better-design", description: "Developer dashboard, green accents." },
-  { id: "apple", label: "Apple", source: "better-design", description: "Bright, rounded, soft shadows." },
-];
+export const THEMES: ThemeManifest[] = BETTER_DESIGN_THEMES.map((theme) => ({
+  ...theme,
+  source: "better-design",
+}));
 
 export type ThemeId = (typeof THEMES)[number]["id"];
 

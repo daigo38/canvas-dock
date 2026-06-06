@@ -123,16 +123,8 @@ stat = StatCard("Visitors", 1024, "+12%", "up")
 
 ## 4. Themes
 
-Pass one as `theme`:
-
-| id | source |
-|---|---|
-| `linear` | better-design |
-| `vercel` | better-design |
-| `notion` | better-design |
-| `stripe` | better-design |
-| `supabase` | better-design |
-| `apple` | better-design |
+Pass a vendored better-design theme ID as `theme`; use `list_themes` for the
+current list.
 
 Omit `theme` to use the instance default.
 
@@ -144,12 +136,7 @@ Canvas Dock ships repository-backed preset pages. They are listed with hosted
 pages and never expire:
 
 - `preset-components`
-- `preset-theme-linear`
-- `preset-theme-vercel`
-- `preset-theme-notion`
-- `preset-theme-stripe`
-- `preset-theme-supabase`
-- `preset-theme-apple`
+- `preset-theme-<theme-id>` for every vendored better-design theme
 
 These are source-controlled presets, not generated files in `data/pages`.
 

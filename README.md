@@ -11,7 +11,7 @@ Use case: a local agent finishes a research task and wants to share the rendered
 - ✅ MCP server at `/api/mcp` (Streamable HTTP)
 - ✅ REST at `/api/pages`
 - ✅ Settings UI with global defaults and project overrides
-- ✅ 6 better-design themes vendored: `linear` / `vercel` / `notion` / `stripe` / `supabase` / `apple`.
+- ✅ 45 better-design themes vendored from the registry catalog. `halo` and `haptic` are excluded because their registry component URLs currently return 404.
 - ✅ Render catalog is restricted to better-design-backed components; no Canvas Dock UI fallback.
 - ✅ Additional better-design adapters include inputs, fields, table primitives, scroll area, status, timeline, steps, rating, and notifications.
 - ✅ Repository preset pages include one component gallery and one gallery for each vendored theme.
@@ -35,12 +35,11 @@ records under `data/pages`:
 | Slug | Page |
 |---|---|
 | `preset-components` | Component gallery |
-| `preset-theme-linear` | Linear theme gallery |
-| `preset-theme-vercel` | Vercel theme gallery |
-| `preset-theme-notion` | Notion theme gallery |
-| `preset-theme-stripe` | Stripe theme gallery |
-| `preset-theme-supabase` | Supabase theme gallery |
-| `preset-theme-apple` | Apple theme gallery |
+| `preset-theme-<theme-id>` | Theme gallery for every vendored better-design theme |
+
+Use `list_themes` or `GET /api/mcp` resources from an MCP client to discover
+the current theme IDs. The source of truth is `BETTER_DESIGN_THEMES` in
+`src/lib/betterDesignCatalog.ts`.
 
 ### Send a payload (REST)
 

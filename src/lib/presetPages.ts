@@ -1,4 +1,5 @@
 import type { PageRecord } from "./store";
+import { THEMES } from "./themes";
 
 const CREATED_AT = "2026-06-06T00:00:00.000Z";
 
@@ -58,15 +59,6 @@ codeBlock = CodeBlock("input = Input('Email', '', 'email', false)", "openui", "c
 empty = Empty("No more components", "Add more adapters intentionally.")
 `;
 
-const themePresets = [
-  ["preset-theme-linear", "linear", "Linear Theme Gallery", "Linear"],
-  ["preset-theme-vercel", "vercel", "Vercel Theme Gallery", "Vercel"],
-  ["preset-theme-notion", "notion", "Notion Theme Gallery", "Notion"],
-  ["preset-theme-stripe", "stripe", "Stripe Theme Gallery", "Stripe"],
-  ["preset-theme-supabase", "supabase", "Supabase Theme Gallery", "Supabase"],
-  ["preset-theme-apple", "apple", "Apple Theme Gallery", "Apple"],
-] as const;
-
 export const PRESET_PAGES: PageRecord[] = [
   {
     slug: "preset-components",
@@ -78,13 +70,13 @@ export const PRESET_PAGES: PageRecord[] = [
     createdAt: CREATED_AT,
     expiresAt: null,
   },
-  ...themePresets.map(([slug, theme, title, label]) => ({
-    slug,
+  ...THEMES.map((theme) => ({
+    slug: `preset-theme-${theme.id}`,
     kind: "openui" as const,
     project: "preset",
-    theme,
-    title,
-    payload: themeShowcasePayload(label),
+    theme: theme.id,
+    title: `${theme.label} Theme Gallery`,
+    payload: themeShowcasePayload(theme.label),
     createdAt: CREATED_AT,
     expiresAt: null,
   })),

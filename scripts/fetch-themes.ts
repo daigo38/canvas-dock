@@ -6,11 +6,9 @@
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { BETTER_DESIGN_THEMES } from "../src/lib/betterDesignCatalog.ts";
 
 const REGISTRY_BASE = "https://www.better-design.com/registry";
-
-// Subset of better-design we ship in Canvas Dock.
-const THEMES = ["linear", "vercel", "notion", "stripe", "supabase", "apple"];
 
 interface RegistryEntry {
   cssVars?: {
@@ -50,7 +48,8 @@ ${lightLines}
 
 async function main() {
   const root = process.cwd();
-  for (const slug of THEMES) {
+  const slugs = BETTER_DESIGN_THEMES.map((theme) => theme.id);
+  for (const slug of slugs) {
     process.stdout.write(`fetching ${slug}… `);
     const entry = await fetchTheme(slug);
     const css = buildCss(slug, entry);
@@ -60,9 +59,9 @@ async function main() {
     process.stdout.write("ok\n");
   }
   // Aggregator that globals.css can @import.
-  const aggregator = THEMES.map((s) => `@import "../themes/${s}/theme.css";`).join("\n") + "\n";
+  const aggregator = slugs.map((s) => `@import "../themes/${s}/theme.css";`).join("\n") + "\n";
   await fs.writeFile(path.join(root, "src", "lib", "themes.css"), aggregator);
-  console.log(`\nwrote ${THEMES.length} themes + src/lib/themes.css`);
+  console.log(`\nwrote ${slugs.length} themes + src/lib/themes.css`);
 }
 
 main().catch((err) => {

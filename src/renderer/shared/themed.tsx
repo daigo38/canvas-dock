@@ -571,7 +571,17 @@ export function Timeline({
 }) {
   const t = useTheme();
   const C = requireComponent(t, "Timeline");
-  return C ? <C items={items} /> : <MissingBetterDesignComponent name="timeline" />;
+  const events = items.map((item, index) => ({
+    id: index,
+    title: item.title,
+    description: item.description,
+    date: item.date,
+    time: item.date,
+    timestamp: item.date,
+    variant: item.variant,
+    status: item.variant === "success" ? "complete" : item.variant === "warning" ? "current" : "upcoming",
+  }));
+  return C ? <C items={items} events={events} /> : <MissingBetterDesignComponent name="timeline" />;
 }
 
 export function Steps({

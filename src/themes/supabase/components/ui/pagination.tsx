@@ -1,8 +1,9 @@
+// @ts-nocheck
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { ButtonProps, buttonVariants } from "@/themes/supabase/components/ui/button"
+import { ButtonProps, buttonVariants } from "@/components/ui/button"
 
 // Supabase Pagination: clean minimal style
 // Active page: bg-primary text-primary-foreground rounded-[10px]

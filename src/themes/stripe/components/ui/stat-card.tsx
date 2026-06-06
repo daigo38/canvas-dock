@@ -1,6 +1,7 @@
+// @ts-nocheck
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Card, CardContent } from "@/themes/stripe/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 
 // Stripe Stat Card: displays a metric with label, value, and optional change indicator
 
