@@ -2,13 +2,16 @@
 
 import { useTransition, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function DeletePageButton({ slug }: { slug: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return (
-    <button
+    <Button
       type="button"
+      variant="destructive"
       onClick={(e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -19,9 +22,9 @@ export function DeletePageButton({ slug }: { slug: string }) {
         });
       }}
       disabled={pending}
-      className="rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 disabled:opacity-50"
     >
-      {pending ? "…" : "Delete"}
-    </button>
+      <Trash2 />
+      {pending ? "Deleting" : "Delete"}
+    </Button>
   );
 }

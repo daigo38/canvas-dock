@@ -17,6 +17,31 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import {
+  Alert as ShadcnAlert,
+  AlertDescription as ShadcnAlertDescription,
+  AlertTitle as ShadcnAlertTitle,
+} from "@/components/ui/alert";
+import { Badge as ShadcnBadge } from "@/components/ui/badge";
+import { Button as ShadcnButton } from "@/components/ui/button";
+import {
+  Card as ShadcnCard,
+  CardContent as ShadcnCardContent,
+  CardDescription as ShadcnCardDescription,
+  CardHeader as ShadcnCardHeader,
+  CardTitle as ShadcnCardTitle,
+} from "@/components/ui/card";
+import { Progress as ShadcnProgress } from "@/components/ui/progress";
+import { Separator as ShadcnSeparator } from "@/components/ui/separator";
+import { Skeleton as ShadcnSkeleton } from "@/components/ui/skeleton";
+import {
+  Table as ShadcnTable,
+  TableBody as ShadcnTableBody,
+  TableCell as ShadcnTableCell,
+  TableHead as ShadcnTableHead,
+  TableHeader as ShadcnTableHeader,
+  TableRow as ShadcnTableRow,
+} from "@/components/ui/table";
 
 // Primitive components shared by OpenUI and A2UI renderers.
 // Styled via Tailwind + CSS variables; theme switching happens by changing
@@ -147,7 +172,7 @@ export const ScrollArea: React.FC<{
   </div>
 );
 
-export const Divider: React.FC = () => <hr className="border-border my-2" />;
+export const Divider: React.FC = () => <ShadcnSeparator className="my-2" />;
 
 // ===========================================================================
 // TYPOGRAPHY
@@ -215,18 +240,22 @@ export const Kbd: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
 export const Card: React.FC<{ title?: string; description?: string; children?: React.ReactNode }> = ({
   title, description, children,
 }) => (
-  <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm p-6">
-    {title && <h3 className="text-base font-semibold leading-none tracking-tight mb-1">{title}</h3>}
-    {description && <p className="text-sm text-muted-foreground mb-4">{description}</p>}
-    <div>{children}</div>
-  </div>
+  <ShadcnCard>
+    {(title || description) && (
+      <ShadcnCardHeader>
+        {title && <ShadcnCardTitle>{title}</ShadcnCardTitle>}
+        {description && <ShadcnCardDescription>{description}</ShadcnCardDescription>}
+      </ShadcnCardHeader>
+    )}
+    <ShadcnCardContent className={cn(!title && !description && "pt-6")}>{children}</ShadcnCardContent>
+  </ShadcnCard>
 );
 
 const ALERT_STYLE: Record<string, string> = {
-  info: "border-blue-300 bg-blue-50 text-blue-900",
-  warn: "border-amber-300 bg-amber-50 text-amber-900",
-  error: "border-rose-300 bg-rose-50 text-rose-900",
-  success: "border-emerald-300 bg-emerald-50 text-emerald-900",
+  info: "",
+  warn: "border-amber-300 text-amber-800 dark:border-amber-800 dark:text-amber-300",
+  error: "",
+  success: "border-emerald-300 text-emerald-800 dark:border-emerald-800 dark:text-emerald-300",
 };
 
 export const Alert: React.FC<{
@@ -234,26 +263,24 @@ export const Alert: React.FC<{
   title?: string;
   children?: React.ReactNode;
 }> = ({ variant = "info", title, children }) => (
-  <div className={cn("rounded-lg border p-4", ALERT_STYLE[variant] ?? ALERT_STYLE.info)}>
-    {title && <div className="font-semibold mb-1">{title}</div>}
-    {children && <div className="text-sm">{children}</div>}
-  </div>
+  <ShadcnAlert variant={variant === "error" ? "destructive" : "default"} className={ALERT_STYLE[variant]}>
+    {title && <ShadcnAlertTitle>{title}</ShadcnAlertTitle>}
+    {children && <ShadcnAlertDescription>{children}</ShadcnAlertDescription>}
+  </ShadcnAlert>
 );
 
 export const Badge: React.FC<{ tone?: "default" | "success" | "warn" | "error"; children?: React.ReactNode }> = ({
   tone = "default", children,
 }) => (
-  <span
+  <ShadcnBadge
+    variant={tone === "error" ? "destructive" : tone === "default" ? "secondary" : "outline"}
     className={cn(
-      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-      tone === "default" && "bg-muted text-muted-foreground",
-      tone === "success" && "bg-emerald-100 text-emerald-700",
-      tone === "warn" && "bg-amber-100 text-amber-700",
-      tone === "error" && "bg-rose-100 text-rose-700",
+      tone === "success" && "border-emerald-300 text-emerald-700 dark:border-emerald-800 dark:text-emerald-300",
+      tone === "warn" && "border-amber-300 text-amber-700 dark:border-amber-800 dark:text-amber-300",
     )}
   >
     {children}
-  </span>
+  </ShadcnBadge>
 );
 
 const AVATAR_SIZE: Record<string, string> = {
@@ -300,12 +327,14 @@ export const EmptyState: React.FC<{
   icon?: string;
   children?: React.ReactNode;
 }> = ({ title, description, icon, children }) => (
-  <div className="rounded-lg border border-dashed border-border bg-muted/20 p-10 text-center">
-    {icon && <div className="text-4xl mb-3">{icon}</div>}
-    <h3 className="text-base font-semibold">{title}</h3>
-    {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
-    {children && <div className="mt-4 flex justify-center">{children}</div>}
-  </div>
+  <ShadcnCard className="border-dashed bg-muted/20">
+    <ShadcnCardContent className="p-10 text-center">
+      {icon && <div className="text-4xl mb-3">{icon}</div>}
+      <h3 className="text-base font-semibold">{title}</h3>
+      {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+      {children && <div className="mt-4 flex justify-center">{children}</div>}
+    </ShadcnCardContent>
+  </ShadcnCard>
 );
 
 // ===========================================================================
@@ -315,22 +344,24 @@ export const EmptyState: React.FC<{
 export const Stat: React.FC<{ label: string; value: string | number; delta?: string; trend?: "up" | "down" | "flat" }> = ({
   label, value, delta, trend,
 }) => (
-  <div className="rounded-lg border border-border bg-card p-5">
-    <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-    <div className="mt-2 text-3xl font-semibold tabular-nums">{value}</div>
-    {delta && (
-      <div
-        className={cn(
-          "mt-1 text-xs font-medium",
-          trend === "up" && "text-emerald-600",
-          trend === "down" && "text-rose-600",
-          (!trend || trend === "flat") && "text-muted-foreground",
-        )}
-      >
-        {delta}
-      </div>
-    )}
-  </div>
+  <ShadcnCard>
+    <ShadcnCardContent className="p-5">
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-2 text-3xl font-semibold tabular-nums">{value}</div>
+      {delta && (
+        <div
+          className={cn(
+            "mt-1 text-xs font-medium",
+            trend === "up" && "text-emerald-600",
+            trend === "down" && "text-rose-600",
+            (!trend || trend === "flat") && "text-muted-foreground",
+          )}
+        >
+          {delta}
+        </div>
+      )}
+    </ShadcnCardContent>
+  </ShadcnCard>
 );
 
 type ChartDatum = Record<string, string | number>;
@@ -398,44 +429,44 @@ export const DataTable: React.FC<{
   columns: { key: string; label: string; align?: "left" | "right" | "center" }[];
   rows: Record<string, string | number>[];
 }> = ({ columns, rows }) => (
-  <div className="overflow-x-auto rounded-lg border border-border">
-    <table className="w-full text-sm">
-      <thead className="bg-muted/40 text-muted-foreground">
-        <tr>
-          {columns.map((c) => (
-            <th
-              key={c.key}
-              className={cn(
-                "px-4 py-2 text-left font-medium",
-                c.align === "right" && "text-right",
-                c.align === "center" && "text-center",
-              )}
-            >
-              {c.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, i) => (
-          <tr key={i} className="border-t border-border">
+  <ShadcnCard>
+    <ShadcnCardContent className="p-0">
+      <ShadcnTable>
+        <ShadcnTableHeader className="bg-muted/40">
+          <ShadcnTableRow>
             {columns.map((c) => (
-              <td
+              <ShadcnTableHead
                 key={c.key}
                 className={cn(
-                  "px-4 py-2",
-                  c.align === "right" && "text-right tabular-nums",
+                  c.align === "right" && "text-right",
                   c.align === "center" && "text-center",
                 )}
               >
-                {row[c.key] as React.ReactNode}
-              </td>
+                {c.label}
+              </ShadcnTableHead>
             ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
+          </ShadcnTableRow>
+        </ShadcnTableHeader>
+        <ShadcnTableBody>
+          {rows.map((row, i) => (
+            <ShadcnTableRow key={i}>
+              {columns.map((c) => (
+                <ShadcnTableCell
+                  key={c.key}
+                  className={cn(
+                    c.align === "right" && "text-right tabular-nums",
+                    c.align === "center" && "text-center",
+                  )}
+                >
+                  {row[c.key] as React.ReactNode}
+                </ShadcnTableCell>
+              ))}
+            </ShadcnTableRow>
+          ))}
+        </ShadcnTableBody>
+      </ShadcnTable>
+    </ShadcnCardContent>
+  </ShadcnCard>
 );
 
 export const BulletList: React.FC<{ items: string[] }> = ({ items }) => (
@@ -451,14 +482,16 @@ export const NumberList: React.FC<{ items: string[] }> = ({ items }) => (
 );
 
 export const DefinitionList: React.FC<{ items: { term: string; definition: string }[] }> = ({ items }) => (
-  <dl className="divide-y divide-border rounded-lg border border-border">
-    {items.map((item, i) => (
-      <div key={i} className="grid gap-1 px-4 py-3 sm:grid-cols-[200px_1fr] sm:gap-4">
-        <dt className="text-sm font-medium text-muted-foreground">{item.term}</dt>
-        <dd className="text-sm">{item.definition}</dd>
-      </div>
-    ))}
-  </dl>
+  <ShadcnCard>
+    <dl className="divide-y divide-border">
+      {items.map((item, i) => (
+        <div key={i} className="grid gap-1 px-4 py-3 sm:grid-cols-[200px_1fr] sm:gap-4">
+          <dt className="text-sm font-medium text-muted-foreground">{item.term}</dt>
+          <dd className="text-sm">{item.definition}</dd>
+        </div>
+      ))}
+    </dl>
+  </ShadcnCard>
 );
 
 export const Progress: React.FC<{ value: number; label?: string }> = ({ value, label }) => {
@@ -471,9 +504,7 @@ export const Progress: React.FC<{ value: number; label?: string }> = ({ value, l
           <span className="font-mono tabular-nums">{v}%</span>
         </div>
       )}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div className="h-full bg-primary transition-all" style={{ width: `${v}%` }} />
-      </div>
+      <ShadcnProgress value={v} />
     </div>
   );
 };
@@ -495,40 +526,47 @@ export const Timeline: React.FC<{ items: { date: string; title: string; descript
 // INTERACTIVE (statically rendered — no client state)
 // ===========================================================================
 
-const BTN_VARIANT: Record<string, string> = {
-  default: "bg-primary text-primary-foreground hover:bg-primary/90",
-  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-  outline: "border border-border bg-background text-foreground hover:bg-muted",
-  ghost: "text-foreground hover:bg-muted",
-  destructive: "bg-rose-600 text-white hover:bg-rose-700",
-  link: "text-primary underline underline-offset-4 hover:opacity-80 px-0 h-auto",
+type ShadcnButtonProps = React.ComponentProps<typeof ShadcnButton>;
+type PrimitiveButtonVariant = "default" | "secondary" | "outline" | "ghost" | "destructive" | "link";
+type PrimitiveButtonSize = "sm" | "md" | "lg";
+
+const BUTTON_VARIANT: Record<PrimitiveButtonVariant, NonNullable<ShadcnButtonProps["variant"]>> = {
+  default: "default",
+  secondary: "secondary",
+  outline: "outline",
+  ghost: "ghost",
+  destructive: "destructive",
+  link: "link",
 };
-const BTN_SIZE: Record<string, string> = {
-  sm: "h-8 px-3 text-xs",
-  md: "h-9 px-4 text-sm",
-  lg: "h-10 px-6 text-sm",
+const BUTTON_SIZE: Record<PrimitiveButtonSize, NonNullable<ShadcnButtonProps["size"]>> = {
+  sm: "sm",
+  md: "default",
+  lg: "lg",
 };
 
 export const Button: React.FC<{
   text: string;
-  variant?: keyof typeof BTN_VARIANT;
-  size?: keyof typeof BTN_SIZE;
+  variant?: PrimitiveButtonVariant;
+  size?: PrimitiveButtonSize;
   href?: string;
   external?: boolean;
 }> = ({ text, variant = "default", size = "md", href, external }) => {
-  const cls = cn(
-    "inline-flex items-center justify-center rounded-md font-medium transition-colors",
-    BTN_VARIANT[variant] ?? BTN_VARIANT.default,
-    variant !== "link" && (BTN_SIZE[size] ?? BTN_SIZE.md),
-  );
+  const shadcnVariant = BUTTON_VARIANT[variant];
+  const shadcnSize = BUTTON_SIZE[size];
   if (href) {
     return (
-      <a href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer noopener" : undefined} className={cls}>
-        {text}
-      </a>
+      <ShadcnButton asChild variant={shadcnVariant} size={shadcnSize}>
+        <a href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer noopener" : undefined}>
+          {text}
+        </a>
+      </ShadcnButton>
     );
   }
-  return <button type="button" className={cls}>{text}</button>;
+  return (
+    <ShadcnButton type="button" variant={shadcnVariant} size={shadcnSize}>
+      {text}
+    </ShadcnButton>
+  );
 };
 
 export const Tabs: React.FC<{ items: { label: string; content: React.ReactNode }[] }> = ({ items }) => {
@@ -610,13 +648,16 @@ export const Pagination: React.FC<{ current: number; total: number }> = ({ curre
       {pages.map((p, i) => (
         <span
           key={i}
-          className={cn(
-            "inline-flex h-8 min-w-[2rem] items-center justify-center rounded-md border border-border text-sm",
-            p === current ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground",
-            p === "…" && "border-transparent",
-          )}
+          className={cn(p === "…" && "pointer-events-none")}
         >
-          {p}
+          <ShadcnButton
+            asChild
+            variant={p === current ? "default" : "outline"}
+            size="sm"
+            className={cn("min-w-8 px-2", p === "…" && "border-transparent bg-transparent text-muted-foreground")}
+          >
+            <span>{p}</span>
+          </ShadcnButton>
         </span>
       ))}
     </nav>
@@ -628,7 +669,7 @@ export const Skeleton: React.FC<{ width?: string; height?: string; count?: numbe
 }) => (
   <div className="space-y-2">
     {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="animate-pulse rounded bg-muted" style={{ width, height }} />
+      <ShadcnSkeleton key={i} style={{ width, height }} />
     ))}
   </div>
 );

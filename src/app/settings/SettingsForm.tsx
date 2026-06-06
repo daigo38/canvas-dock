@@ -1,6 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { GlobalConfig } from "@/lib/config";
 import type { ThemeManifest } from "@/lib/themes";
 
@@ -15,91 +27,104 @@ export function SettingsForm({ config, themes }: { config: GlobalConfig; themes:
   const [pending, startTransition] = useTransition();
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        startTransition(async () => {
-          const res = await fetch("/api/settings", {
-            method: "PATCH",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              defaultTheme: form.defaultTheme,
-              defaultTtlSeconds: form.defaultTtlSeconds === "" ? null : Number(form.defaultTtlSeconds),
-              auth: form.auth,
-              authToken: form.authToken || undefined,
-            }),
-          });
-          setStatus(res.ok ? "saved" : "error");
-          setTimeout(() => setStatus("idle"), 1500);
-        });
-      }}
-      className="grid gap-4 rounded-lg border border-border p-5 max-w-xl"
-    >
-      <label className="grid gap-1">
-        <span className="text-xs font-medium text-muted-foreground">Default theme</span>
-        <select
-          value={form.defaultTheme}
-          onChange={(e) => setForm({ ...form, defaultTheme: e.target.value })}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+    <Card className="max-w-xl">
+      <CardContent className="p-5">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            startTransition(async () => {
+              const res = await fetch("/api/settings", {
+                method: "PATCH",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                  defaultTheme: form.defaultTheme,
+                  defaultTtlSeconds: form.defaultTtlSeconds === "" ? null : Number(form.defaultTtlSeconds),
+                  auth: form.auth,
+                  authToken: form.authToken || undefined,
+                }),
+              });
+              setStatus(res.ok ? "saved" : "error");
+              setTimeout(() => setStatus("idle"), 1500);
+            });
+          }}
+          className="grid gap-4"
         >
-          {themes.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.label}
-            </option>
-          ))}
-        </select>
-      </label>
+          <div className="grid gap-2">
+            <Label htmlFor="default-theme" className="text-xs text-muted-foreground">
+              Default theme
+            </Label>
+            <Select value={form.defaultTheme} onValueChange={(defaultTheme) => setForm({ ...form, defaultTheme })}>
+              <SelectTrigger id="default-theme">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {themes.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      <label className="grid gap-1">
-        <span className="text-xs font-medium text-muted-foreground">
-          Default TTL (seconds, blank = never expire)
-        </span>
-        <input
-          type="number"
-          min={0}
-          value={form.defaultTtlSeconds}
-          onChange={(e) => setForm({ ...form, defaultTtlSeconds: e.target.value })}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm font-mono"
-          placeholder="604800"
-        />
-      </label>
+          <div className="grid gap-2">
+            <Label htmlFor="default-ttl" className="text-xs text-muted-foreground">
+              Default TTL (seconds, blank = never expire)
+            </Label>
+            <Input
+              id="default-ttl"
+              type="number"
+              min={0}
+              value={form.defaultTtlSeconds}
+              onChange={(e) => setForm({ ...form, defaultTtlSeconds: e.target.value })}
+              className="font-mono"
+              placeholder="604800"
+            />
+          </div>
 
-      <label className="grid gap-1">
-        <span className="text-xs font-medium text-muted-foreground">Auth mode</span>
-        <select
-          value={form.auth}
-          onChange={(e) => setForm({ ...form, auth: e.target.value as "none" | "token" })}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-        >
-          <option value="none">None (local only)</option>
-          <option value="token">Bearer token (in MCP / REST requests)</option>
-        </select>
-      </label>
+          <div className="grid gap-2">
+            <Label htmlFor="auth-mode" className="text-xs text-muted-foreground">
+              Auth mode
+            </Label>
+            <Select
+              value={form.auth}
+              onValueChange={(auth) => setForm({ ...form, auth: auth as "none" | "token" })}
+            >
+              <SelectTrigger id="auth-mode">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None (local only)</SelectItem>
+                <SelectItem value="token">Bearer token (in MCP / REST requests)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      {form.auth === "token" && (
-        <label className="grid gap-1">
-          <span className="text-xs font-medium text-muted-foreground">Bearer token</span>
-          <input
-            type="text"
-            value={form.authToken}
-            onChange={(e) => setForm({ ...form, authToken: e.target.value })}
-            className="rounded-md border border-border bg-background px-3 py-2 text-sm font-mono"
-            placeholder="random-secret"
-          />
-        </label>
-      )}
+          {form.auth === "token" && (
+            <div className="grid gap-2">
+              <Label htmlFor="auth-token" className="text-xs text-muted-foreground">
+                Bearer token
+              </Label>
+              <Input
+                id="auth-token"
+                type="text"
+                value={form.authToken}
+                onChange={(e) => setForm({ ...form, authToken: e.target.value })}
+                className="font-mono"
+                placeholder="random-secret"
+              />
+            </div>
+          )}
 
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-        >
-          {pending ? "Saving…" : "Save"}
-        </button>
-        {status === "saved" && <span className="text-xs text-emerald-600">Saved.</span>}
-        {status === "error" && <span className="text-xs text-rose-600">Failed.</span>}
-      </div>
-    </form>
+          <div className="flex items-center gap-3">
+            <Button type="submit" disabled={pending}>
+              {pending ? "Saving..." : "Save"}
+            </Button>
+            {status === "saved" && <Badge className="bg-emerald-600 text-white">Saved</Badge>}
+            {status === "error" && <Badge variant="destructive">Failed</Badge>}
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

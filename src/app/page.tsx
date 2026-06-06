@@ -3,6 +3,9 @@ import { headers } from "next/headers";
 import { AppShell } from "@/components/app/AppShell";
 import { CopyButton } from "@/components/app/CopyButton";
 import { DeletePageButton } from "@/components/app/DeletePageButton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { listPages } from "@/lib/store";
 import { listProjects } from "@/lib/config";
 import { THEMES } from "@/lib/themes";
@@ -30,52 +33,48 @@ export default async function Dashboard() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-md border border-border bg-muted/40 px-2 py-1 font-mono text-xs text-muted-foreground">
+          <Badge variant="secondary" className="h-9 px-3 font-mono font-normal text-muted-foreground">
             MCP {mcpUrl}
-          </span>
+          </Badge>
           <CopyButton value={mcpUrl} label="Copy MCP URL" />
-          <Link
-            href="/settings"
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-muted"
-          >
-            Settings
-          </Link>
+          <Button asChild variant="outline">
+            <Link href="/settings">Settings</Link>
+          </Button>
         </div>
       </div>
 
       {pages.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border bg-muted/30 p-10 text-center">
-          <p className="text-sm text-muted-foreground">No pages yet.</p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            POST to <code className="rounded bg-background px-1.5 py-0.5">/api/pages</code> or call the MCP tool{" "}
-            <code className="rounded bg-background px-1.5 py-0.5">render_a2ui</code> /{" "}
-            <code className="rounded bg-background px-1.5 py-0.5">render_openui</code>.
-          </p>
-        </div>
+        <Card className="border-dashed bg-muted/30">
+          <CardContent className="p-10 text-center">
+            <p className="text-sm text-muted-foreground">No pages yet.</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              POST to <code className="rounded bg-background px-1.5 py-0.5">/api/pages</code> or call the MCP tool{" "}
+              <code className="rounded bg-background px-1.5 py-0.5">render_a2ui</code> /{" "}
+              <code className="rounded bg-background px-1.5 py-0.5">render_openui</code>.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <ul className="flex flex-col gap-2">
           {pages.map((p) => {
             const url = `${origin}/p/${p.slug}`;
             return (
               <li key={p.slug}>
-                <Link
-                  href={`/p/${p.slug}`}
-                  className="block rounded-lg border border-border bg-card text-card-foreground transition-colors hover:bg-muted/40"
-                >
-                  <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0 flex-1">
+                <Card className="transition-colors hover:bg-muted/40">
+                  <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <Link href={`/p/${p.slug}`} className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs">
                         <span className="font-mono text-muted-foreground">{p.slug}</span>
-                        <span className="rounded bg-muted px-1.5 py-0.5 font-medium uppercase tracking-wide text-muted-foreground">
+                        <Badge variant="secondary" className="uppercase tracking-wide text-muted-foreground">
                           {p.kind}
-                        </span>
-                        <span className="rounded bg-muted px-1.5 py-0.5 font-medium uppercase tracking-wide text-muted-foreground">
+                        </Badge>
+                        <Badge variant="secondary" className="uppercase tracking-wide text-muted-foreground">
                           {p.theme}
-                        </span>
+                        </Badge>
                         {p.project && (
-                          <span className="rounded bg-muted px-1.5 py-0.5 font-medium uppercase tracking-wide text-muted-foreground">
+                          <Badge variant="secondary" className="uppercase tracking-wide text-muted-foreground">
                             {p.project}
-                          </span>
+                          </Badge>
                         )}
                       </div>
                       <div className="mt-1.5 truncate text-sm font-medium">
@@ -84,13 +83,13 @@ export default async function Dashboard() {
                       <div className="mt-1 text-xs text-muted-foreground">
                         expires: {p.expiresAt ? new Date(p.expiresAt).toLocaleString() : "never"}
                       </div>
-                    </div>
+                    </Link>
                     <div className="flex items-center gap-2 self-start sm:self-center">
                       <CopyButton value={url} />
                       <DeletePageButton slug={p.slug} />
                     </div>
-                  </div>
-                </Link>
+                  </CardContent>
+                </Card>
               </li>
             );
           })}
