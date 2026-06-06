@@ -1,8 +1,7 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
-import { motion, AnimatePresence } from "motion/react"
+import { motion, AnimatePresence, type HTMLMotionProps } from "motion/react"
 import { cn } from "@/lib/utils"
 
 // ThinkingSteps: chain-of-thought display with sequential animation.
@@ -33,7 +32,7 @@ function ThinkingSteps({ children, className, ...props }: ThinkingStepsProps) {
   )
 }
 
-interface ThinkingStepProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ThinkingStepProps extends HTMLMotionProps<"div"> {
   status?: StepStatus
   title: string
   description?: React.ReactNode

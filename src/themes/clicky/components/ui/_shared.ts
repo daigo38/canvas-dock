@@ -1,4 +1,3 @@
-// @ts-nocheck
 export const formFieldBase =
   "w-full rounded-[6px] px-3 text-sm " +
   "bg-background text-foreground " +

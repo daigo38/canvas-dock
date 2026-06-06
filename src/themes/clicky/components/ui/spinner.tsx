@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { cn } from "@/lib/utils"
 
 // Clicky Spinner — SVG circle spinner using currentColor

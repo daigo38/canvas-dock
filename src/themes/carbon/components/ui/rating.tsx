@@ -1,11 +1,10 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
 import { Icon } from "@iconify/react"
 import { cn } from "@/lib/utils"
 
-export interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
+export interface RatingProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number
   max?: number
   onChange?: (value: number) => void

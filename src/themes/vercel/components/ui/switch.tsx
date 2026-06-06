@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
@@ -20,7 +19,13 @@ function Switch({
       )}
       {...props}
     >
-      <SwitchPrimitives.Thumb render={<motion.span layout transition={springInteraction} className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0" />}></SwitchPrimitives.Thumb>
+      <SwitchPrimitives.Thumb asChild>
+        <motion.span
+          layout
+          transition={springInteraction}
+          className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+        />
+      </SwitchPrimitives.Thumb>
     </SwitchPrimitives.Root>
   )
 }

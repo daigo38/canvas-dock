@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { cn } from "@/lib/utils"
 
 interface SpinnerProps extends React.SVGAttributes<SVGElement> {

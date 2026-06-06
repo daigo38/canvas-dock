@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
@@ -7,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 // Airbnb Rating: star rating component
 
-interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
+interface RatingProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number
   max?: number
   onChange?: (value: number) => void

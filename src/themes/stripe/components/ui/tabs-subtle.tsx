@@ -1,8 +1,7 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
-import { motion, AnimatePresence } from "motion/react"
+import { motion, AnimatePresence, type HTMLMotionProps } from "motion/react"
 import { cn } from "@/lib/utils"
 
 // TabsSubtle: tab navigation with a smooth pill that slides between the
@@ -110,7 +109,7 @@ function TabsSubtleItem({
   )
 }
 
-interface TabsSubtlePanelProps extends React.HTMLAttributes<HTMLDivElement> {
+interface TabsSubtlePanelProps extends HTMLMotionProps<"div"> {
   value: string
   activeValue: string
   children: React.ReactNode

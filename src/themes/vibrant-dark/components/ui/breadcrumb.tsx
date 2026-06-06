@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as React from "react"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"

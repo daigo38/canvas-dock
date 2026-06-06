@@ -1,10 +1,9 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/themes/vercel/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Calendar } from "@/themes/vercel/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/themes/vercel/components/ui/popover"
 

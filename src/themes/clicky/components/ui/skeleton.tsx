@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { cn } from "@/lib/utils"
 
 // Clicky Skeleton — muted pulsing placeholder, rounded-[6px]

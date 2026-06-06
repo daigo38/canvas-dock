@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
@@ -7,7 +6,7 @@ import { cn } from "@/lib/utils"
 // Luxe Rating: star rating — white filled stars (monochromatic premium)
 // Empty stars are muted-foreground; hover previews fill; readonly mode supported
 
-export interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
+export interface RatingProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number
   onChange?: (value: number) => void
   max?: number

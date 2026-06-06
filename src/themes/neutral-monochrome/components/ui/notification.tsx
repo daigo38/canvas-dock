@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as React from "react"
 import { X, Info, CheckCircle, AlertTriangle, AlertCircle } from "lucide-react"
 import { cva, type VariantProps } from "class-variance-authority"

@@ -1,4 +1,3 @@
-// @ts-nocheck
 export const formFieldBase = [
   "w-full bg-card/80 backdrop-blur",
   "border border-border rounded-2xl",

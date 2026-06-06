@@ -1,10 +1,9 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/themes/apple/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Calendar } from "@/themes/apple/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/themes/apple/components/ui/popover"
 
