@@ -95,6 +95,17 @@ Only use these components:
 | `Tooltip` | `Tooltip(text, hint)` |
 | `Pagination` | `Pagination(current, total)` |
 | `Skeleton` | `Skeleton(width?, height?)` |
+| `Input` | `Input(placeholder?, value?, type?, disabled?)` |
+| `Textarea` | `Textarea(placeholder?, value?, rows?, disabled?)` |
+| `Field` | `Field(children, label?, description?, error?, required?, optional?)` |
+| `SimpleTable` | `SimpleTable(columns, rows, caption?)` |
+| `ScrollArea` | `ScrollArea(children, height?)` |
+| `StatusIndicator` | `StatusIndicator(status, showLabel?, size?, pulse?)` |
+| `Spinner` | `Spinner(size?)` |
+| `Timeline` | `Timeline(items)` |
+| `Steps` | `Steps(steps, currentStep, orientation?)` |
+| `Rating` | `Rating(value?, max?, size?)` |
+| `Notification` | `Notification(title, description?, variant?, unread?)` |
 
 Do not use `Stack`, `Grid`, `Container`, `Spacer`, `Hero`, `Image`, `Video`,
 `Iframe`, `BulletList`, `NumberList`, `DefinitionList`, `Row`, `Column`, or
@@ -127,7 +138,24 @@ Omit `theme` to use the instance default.
 
 ---
 
-## 5. Better-design maintenance
+## 5. Preset pages
+
+Canvas Dock ships repository-backed preset pages. They are listed with hosted
+pages and never expire:
+
+- `preset-components`
+- `preset-theme-linear`
+- `preset-theme-vercel`
+- `preset-theme-notion`
+- `preset-theme-stripe`
+- `preset-theme-supabase`
+- `preset-theme-apple`
+
+These are source-controlled presets, not generated files in `data/pages`.
+
+---
+
+## 6. Better-design maintenance
 
 The upstream usage is:
 
@@ -146,7 +174,7 @@ That command installs the allowed better-design registry components into
 
 ---
 
-## 6. Updating, deleting, listing
+## 7. Updating, deleting, listing
 
 | Method + path | Purpose |
 |---|---|
@@ -157,7 +185,7 @@ That command installs the allowed better-design registry components into
 
 ---
 
-## 7. Errors
+## 8. Errors
 
 HTTP 400 returns `{ error, issues: [...] }`.
 

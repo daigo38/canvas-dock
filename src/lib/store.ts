@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { getPresetPage, PRESET_PAGES } from "./presetPages";
 
 const PAGES_DIR = path.resolve(process.cwd(), "data", "pages");
 
@@ -56,6 +57,9 @@ export async function createPage(input: Omit<PageRecord, "slug" | "createdAt" | 
 }
 
 export async function getPage(slug: string): Promise<PageRecord | null> {
+  const preset = getPresetPage(slug);
+  if (preset) return preset;
+
   await ensureDir();
   try {
     const raw = await fs.readFile(pageFile(slug), "utf8");
@@ -71,6 +75,8 @@ export async function getPage(slug: string): Promise<PageRecord | null> {
 }
 
 export async function updatePagePayload(slug: string, payload: unknown): Promise<PageRecord | null> {
+  if (getPresetPage(slug)) return null;
+
   const existing = await getPage(slug);
   if (!existing) return null;
   const next = { ...existing, payload };
@@ -79,6 +85,8 @@ export async function updatePagePayload(slug: string, payload: unknown): Promise
 }
 
 export async function deletePage(slug: string): Promise<boolean> {
+  if (getPresetPage(slug)) return false;
+
   await ensureDir();
   try {
     await fs.rm(pageFile(slug), { force: false });
@@ -106,5 +114,6 @@ export async function listPages(): Promise<PageRecord[]> {
       // skip malformed
     }
   }
-  return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const presets = PRESET_PAGES.filter((preset) => !out.some((page) => page.slug === preset.slug));
+  return [...presets, ...out].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

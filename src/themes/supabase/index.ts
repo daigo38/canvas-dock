@@ -19,6 +19,17 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./comp
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "./components/ui/pagination";
 import { Skeleton } from "./components/ui/skeleton";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "./components/ui/chart";
+import { Input } from "./components/ui/input";
+import { Textarea } from "./components/ui/textarea";
+import { Field } from "./components/ui/field";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption } from "./components/ui/table";
+import { ScrollArea } from "./components/ui/scroll-area";
+import { StatusIndicator } from "./components/ui/status-indicator";
+import { Spinner } from "./components/ui/spinner";
+import { Timeline } from "./components/ui/timeline";
+import { Steps } from "./components/ui/steps";
+import { Rating } from "./components/ui/rating";
+import { Notification } from "./components/ui/notification";
 
 export const set = {
   Button, Card, CardHeader, CardTitle, CardDescription, CardContent,
@@ -32,4 +43,7 @@ export const set = {
   Tooltip, TooltipTrigger, TooltipContent, TooltipProvider,
   Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis,
   Skeleton, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent,
+  Input, Textarea, Field,
+  Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
+  ScrollArea, StatusIndicator, Spinner, Timeline, Steps, Rating, Notification,
 };

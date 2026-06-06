@@ -13,6 +13,8 @@ Use case: a local agent finishes a research task and wants to share the rendered
 - ✅ Settings UI with global defaults and project overrides
 - ✅ 6 better-design themes vendored: `linear` / `vercel` / `notion` / `stripe` / `supabase` / `apple`.
 - ✅ Render catalog is restricted to better-design-backed components; no Canvas Dock UI fallback.
+- ✅ Additional better-design adapters include inputs, fields, table primitives, scroll area, status, timeline, steps, rating, and notifications.
+- ✅ Repository preset pages include one component gallery and one gallery for each vendored theme.
 - ✅ Refresh better-design components with `pnpm install:better-design`; refresh tokens with `pnpm fetch:themes`.
 - ⚠️ Auth + tailscale serve: documented but not enforced
 
@@ -24,6 +26,21 @@ pnpm dev          # http://localhost:3000
 ```
 
 Visit `http://localhost:3000` for the dashboard. All runtime state lives under `./data/` (gitignored).
+
+### Preset pages
+
+These pages are bundled in the repository and are available without creating
+records under `data/pages`:
+
+| Slug | Page |
+|---|---|
+| `preset-components` | Component gallery |
+| `preset-theme-linear` | Linear theme gallery |
+| `preset-theme-vercel` | Vercel theme gallery |
+| `preset-theme-notion` | Notion theme gallery |
+| `preset-theme-stripe` | Stripe theme gallery |
+| `preset-theme-supabase` | Supabase theme gallery |
+| `preset-theme-apple` | Apple theme gallery |
 
 ### Send a payload (REST)
 

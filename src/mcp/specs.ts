@@ -39,6 +39,17 @@ colon syntax. A page must define \`root = ...\`.
 - Tooltip(text, hint)
 - Pagination(current, total)
 - Skeleton(width?, height?)
+- Input(placeholder?, value?, type?, disabled?)
+- Textarea(placeholder?, value?, rows?, disabled?)
+- Field(children, label?, description?, error?, required?, optional?)
+- SimpleTable(columns, rows, caption?)            // better-design table primitives
+- ScrollArea(children, height?)
+- StatusIndicator(status, showLabel?, size?, pulse?) // status: online|offline|busy|away|idle
+- Spinner(size?)                                  // size: sm|md|lg|xl
+- Timeline(items)                                 // items=[{title, description?, date?, variant?}]
+- Steps(steps, currentStep, orientation?)          // orientation: horizontal|vertical
+- Rating(value?, max?, size?)                     // static readonly rendering
+- Notification(title, description?, variant?, unread?)
 
 ## Example
 
@@ -83,6 +94,17 @@ List, Hero, Image, Video, Iframe, or other Canvas Dock invented components.
 - Empty({title, description?})
 - Avatar({name, src?})
 - Kbd({text})
+- Input({placeholder?, value?, type?, disabled?})
+- Textarea({placeholder?, value?, rows?, disabled?})
+- Field({label?, description?, error?, required?, optional?}) // children allowed
+- SimpleTable({columns, rows, caption?})
+- ScrollArea({height?})                           // children allowed
+- StatusIndicator({status, showLabel?, size?, pulse?})
+- Spinner({size?})
+- Timeline({items})
+- Steps({steps, currentStep, orientation?})
+- Rating({value?, max?, size?})
+- Notification({title, description?, variant?, unread?})
 
 Any prop value may be either a literal, or a binding object:
   { literal: ... }      // explicit literal value

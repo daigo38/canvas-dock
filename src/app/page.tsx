@@ -86,7 +86,7 @@ export default async function Dashboard() {
                     </Link>
                     <div className="flex items-center gap-2 self-start sm:self-center">
                       <CopyButton value={url} />
-                      <DeletePageButton slug={p.slug} />
+                      {p.project !== "preset" && <DeletePageButton slug={p.slug} />}
                     </div>
                   </CardContent>
                 </Card>

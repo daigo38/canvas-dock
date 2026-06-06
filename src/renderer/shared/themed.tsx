@@ -90,6 +90,23 @@ export interface ThemeSet {
   ChartTooltipContent?: AnyComp;
   ChartLegend?: AnyComp;
   ChartLegendContent?: AnyComp;
+  Input?: AnyComp;
+  Textarea?: AnyComp;
+  Field?: AnyComp;
+  Table?: AnyComp;
+  TableHeader?: AnyComp;
+  TableBody?: AnyComp;
+  TableHead?: AnyComp;
+  TableRow?: AnyComp;
+  TableCell?: AnyComp;
+  TableCaption?: AnyComp;
+  ScrollArea?: AnyComp;
+  StatusIndicator?: AnyComp;
+  Spinner?: AnyComp;
+  Timeline?: AnyComp;
+  Steps?: AnyComp;
+  Rating?: AnyComp;
+  Notification?: AnyComp;
 }
 
 const ThemeSetContext = React.createContext<ThemeSet>({});
@@ -432,6 +449,173 @@ export function Skeleton({ width = "100%", height = 24 }: { width?: string; heig
   const t = useTheme();
   const C = requireComponent(t, "Skeleton");
   return C ? <C style={{ width, height }} /> : <MissingBetterDesignComponent name="skeleton" />;
+}
+
+export function Input({
+  placeholder,
+  value,
+  type = "text",
+  disabled,
+}: {
+  placeholder?: string;
+  value?: string;
+  type?: string;
+  disabled?: boolean;
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "Input");
+  return C ? <C placeholder={placeholder} defaultValue={value} type={type} disabled={disabled} /> : <MissingBetterDesignComponent name="input" />;
+}
+
+export function Textarea({
+  placeholder,
+  value,
+  rows,
+  disabled,
+}: {
+  placeholder?: string;
+  value?: string;
+  rows?: number;
+  disabled?: boolean;
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "Textarea");
+  return C ? <C placeholder={placeholder} defaultValue={value} rows={rows} disabled={disabled} /> : <MissingBetterDesignComponent name="textarea" />;
+}
+
+export function Field({
+  label,
+  description,
+  error,
+  required,
+  optional,
+  children,
+}: {
+  label?: string;
+  description?: string;
+  error?: string;
+  required?: boolean;
+  optional?: boolean;
+  children?: React.ReactNode;
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "Field");
+  return C ? <C label={label} description={description} error={error} required={required} optional={optional}>{children}</C> : <MissingBetterDesignComponent name="field" />;
+}
+
+export function SimpleTable({
+  columns,
+  rows,
+  caption,
+}: {
+  columns: { key: string; header: string }[];
+  rows: Record<string, unknown>[];
+  caption?: string;
+}) {
+  const t = useTheme();
+  const TTable = requireComponent(t, "Table");
+  const THeader = requireComponent(t, "TableHeader");
+  const TBody = requireComponent(t, "TableBody");
+  const THead = requireComponent(t, "TableHead");
+  const TRow = requireComponent(t, "TableRow");
+  const TCell = requireComponent(t, "TableCell");
+  const TCaption = requireComponent(t, "TableCaption");
+  if (!TTable || !THeader || !TBody || !THead || !TRow || !TCell) return <MissingBetterDesignComponent name="table" />;
+  return (
+    <TTable>
+      {caption && TCaption && <TCaption>{caption}</TCaption>}
+      <THeader>
+        <TRow>{columns.map((column) => <THead key={column.key}>{column.header}</THead>)}</TRow>
+      </THeader>
+      <TBody>
+        {rows.map((row, index) => (
+          <TRow key={index}>{columns.map((column) => <TCell key={column.key}>{String(row[column.key] ?? "")}</TCell>)}</TRow>
+        ))}
+      </TBody>
+    </TTable>
+  );
+}
+
+export function ScrollArea({ height = 240, children }: { height?: number; children?: React.ReactNode }) {
+  const t = useTheme();
+  const C = requireComponent(t, "ScrollArea");
+  return C ? <C style={{ height }}>{children}</C> : <MissingBetterDesignComponent name="scroll-area" />;
+}
+
+export function StatusIndicator({
+  status,
+  showLabel,
+  size = "md",
+  pulse,
+}: {
+  status: "online" | "offline" | "busy" | "away" | "idle";
+  showLabel?: boolean;
+  size?: "sm" | "md" | "lg";
+  pulse?: boolean;
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "StatusIndicator");
+  return C ? <C status={status} showLabel={showLabel} size={size} pulse={pulse} /> : <MissingBetterDesignComponent name="status-indicator" />;
+}
+
+export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" | "xl" }) {
+  const t = useTheme();
+  const C = requireComponent(t, "Spinner");
+  return C ? <C size={size} /> : <MissingBetterDesignComponent name="spinner" />;
+}
+
+export function Timeline({
+  items,
+}: {
+  items: { title: string; description?: string; date?: string; variant?: "default" | "success" | "warning" | "destructive" }[];
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "Timeline");
+  return C ? <C items={items} /> : <MissingBetterDesignComponent name="timeline" />;
+}
+
+export function Steps({
+  steps,
+  currentStep,
+  orientation = "horizontal",
+}: {
+  steps: { title: string; description?: string }[];
+  currentStep: number;
+  orientation?: "horizontal" | "vertical";
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "Steps");
+  return C ? <C steps={steps} currentStep={currentStep} orientation={orientation} /> : <MissingBetterDesignComponent name="steps" />;
+}
+
+export function Rating({
+  value = 0,
+  max = 5,
+  size = "md",
+}: {
+  value?: number;
+  max?: number;
+  size?: "sm" | "md" | "lg";
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "Rating");
+  return C ? <C value={value} max={max} readonly size={size} /> : <MissingBetterDesignComponent name="rating" />;
+}
+
+export function Notification({
+  title,
+  description,
+  variant = "default",
+  unread,
+}: {
+  title: string;
+  description?: string;
+  variant?: "default" | "success" | "warning" | "destructive";
+  unread?: boolean;
+}) {
+  const t = useTheme();
+  const C = requireComponent(t, "Notification");
+  return C ? <C title={title} description={description} variant={variant} unread={unread} /> : <MissingBetterDesignComponent name="notification" />;
 }
 
 type ChartDatum = Record<string, string | number>;

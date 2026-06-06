@@ -20,6 +20,17 @@ import {
   Code,
   CodeBlock,
   Quote,
+  Input,
+  Textarea,
+  Field,
+  SimpleTable,
+  ScrollArea,
+  StatusIndicator,
+  Spinner,
+  Timeline,
+  Steps,
+  Rating,
+  Notification,
 } from "@/renderer/shared/themed";
 import {
   A2UIPayload,
@@ -134,6 +145,64 @@ function renderComponent(
       return <Avatar name={String(p.name ?? "")} src={p.src as string | undefined} />;
     case "Kbd":
       return <Kbd>{String(p.text ?? "")}</Kbd>;
+    case "Input":
+      return <Input placeholder={p.placeholder as string | undefined} value={p.value as string | undefined} type={(p.type as string) ?? "text"} disabled={Boolean(p.disabled)} />;
+    case "Textarea":
+      return <Textarea placeholder={p.placeholder as string | undefined} value={p.value as string | undefined} rows={p.rows as number | undefined} disabled={Boolean(p.disabled)} />;
+    case "Field":
+      return (
+        <Field
+          label={p.label as string | undefined}
+          description={p.description as string | undefined}
+          error={p.error as string | undefined}
+          required={Boolean(p.required)}
+          optional={Boolean(p.optional)}
+        >
+          {kids}
+        </Field>
+      );
+    case "SimpleTable":
+      return (
+        <SimpleTable
+          columns={(p.columns as { key: string; header: string }[]) ?? []}
+          rows={(p.rows as Record<string, unknown>[]) ?? []}
+          caption={p.caption as string | undefined}
+        />
+      );
+    case "ScrollArea":
+      return <ScrollArea height={(p.height as number) ?? 240}>{kids}</ScrollArea>;
+    case "StatusIndicator":
+      return (
+        <StatusIndicator
+          status={(p.status as "online" | "offline" | "busy" | "away" | "idle") ?? "offline"}
+          showLabel={Boolean(p.showLabel)}
+          size={(p.size as "sm" | "md" | "lg") ?? "md"}
+          pulse={Boolean(p.pulse)}
+        />
+      );
+    case "Spinner":
+      return <Spinner size={(p.size as "sm" | "md" | "lg" | "xl") ?? "md"} />;
+    case "Timeline":
+      return <Timeline items={(p.items as { title: string; description?: string; date?: string; variant?: "default" | "success" | "warning" | "destructive" }[]) ?? []} />;
+    case "Steps":
+      return (
+        <Steps
+          steps={(p.steps as { title: string; description?: string }[]) ?? []}
+          currentStep={(p.currentStep as number) ?? 0}
+          orientation={(p.orientation as "horizontal" | "vertical") ?? "horizontal"}
+        />
+      );
+    case "Rating":
+      return <Rating value={(p.value as number) ?? 0} max={(p.max as number) ?? 5} size={(p.size as "sm" | "md" | "lg") ?? "md"} />;
+    case "Notification":
+      return (
+        <Notification
+          title={String(p.title ?? "")}
+          description={p.description as string | undefined}
+          variant={(p.variant as "default" | "success" | "warning" | "destructive") ?? "default"}
+          unread={Boolean(p.unread)}
+        />
+      );
     default:
       return <UnknownComponent reason={`Unknown component type "${c.type}"`} />;
   }

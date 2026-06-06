@@ -253,6 +253,136 @@ const Skeleton = defineComponent({
   component: ({ props }) => <BD.Skeleton width={props.width} height={props.height} />,
 });
 
+const Input = defineComponent({
+  name: "Input",
+  description: "better-design input. Signature: Input(placeholder?, value?, type?, disabled?).",
+  props: z.object({
+    placeholder: z.string().optional(),
+    value: z.string().optional(),
+    type: z.string().default("text"),
+    disabled: z.boolean().default(false),
+  }),
+  component: ({ props }) => <BD.Input placeholder={props.placeholder} value={props.value} type={props.type} disabled={props.disabled} />,
+});
+
+const Textarea = defineComponent({
+  name: "Textarea",
+  description: "better-design textarea. Signature: Textarea(placeholder?, value?, rows?, disabled?).",
+  props: z.object({
+    placeholder: z.string().optional(),
+    value: z.string().optional(),
+    rows: z.number().int().positive().optional(),
+    disabled: z.boolean().default(false),
+  }),
+  component: ({ props }) => <BD.Textarea placeholder={props.placeholder} value={props.value} rows={props.rows} disabled={props.disabled} />,
+});
+
+const Field = defineComponent({
+  name: "Field",
+  description: "better-design field. Signature: Field(children, label?, description?, error?, required?, optional?).",
+  props: z.object({
+    children: z.array(z.any()).optional(),
+    label: z.string().optional(),
+    description: z.string().optional(),
+    error: z.string().optional(),
+    required: z.boolean().default(false),
+    optional: z.boolean().default(false),
+  }),
+  component: ({ props, renderNode }) => (
+    <BD.Field label={props.label} description={props.description} error={props.error} required={props.required} optional={props.optional}>
+      {renderNode(props.children)}
+    </BD.Field>
+  ),
+});
+
+const SimpleTable = defineComponent({
+  name: "SimpleTable",
+  description: "better-design table primitives. Signature: SimpleTable(columns, rows, caption?).",
+  props: z.object({
+    columns: z.array(z.object({ key: z.string(), header: z.string() })),
+    rows: z.array(z.record(z.string(), z.unknown())),
+    caption: z.string().optional(),
+  }),
+  component: ({ props }) => <BD.SimpleTable columns={props.columns} rows={props.rows} caption={props.caption} />,
+});
+
+const ScrollArea = defineComponent({
+  name: "ScrollArea",
+  description: "better-design scroll-area. Signature: ScrollArea(children, height?).",
+  props: z.object({
+    children: z.array(z.any()).optional(),
+    height: z.number().int().positive().default(240),
+  }),
+  component: ({ props, renderNode }) => <BD.ScrollArea height={props.height}>{renderNode(props.children)}</BD.ScrollArea>,
+});
+
+const StatusIndicator = defineComponent({
+  name: "StatusIndicator",
+  description: "better-design status-indicator. Signature: StatusIndicator(status, showLabel?, size?, pulse?).",
+  props: z.object({
+    status: z.enum(["online", "offline", "busy", "away", "idle"]),
+    showLabel: z.boolean().default(false),
+    size: z.enum(["sm", "md", "lg"]).default("md"),
+    pulse: z.boolean().default(false),
+  }),
+  component: ({ props }) => <BD.StatusIndicator status={props.status} showLabel={props.showLabel} size={props.size} pulse={props.pulse} />,
+});
+
+const Spinner = defineComponent({
+  name: "Spinner",
+  description: "better-design spinner. Signature: Spinner(size?).",
+  props: z.object({ size: z.enum(["sm", "md", "lg", "xl"]).default("md") }),
+  component: ({ props }) => <BD.Spinner size={props.size} />,
+});
+
+const Timeline = defineComponent({
+  name: "Timeline",
+  description: "better-design timeline. Signature: Timeline(items).",
+  props: z.object({
+    items: z.array(z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      date: z.string().optional(),
+      variant: z.enum(["default", "success", "warning", "destructive"]).optional(),
+    })),
+  }),
+  component: ({ props }) => <BD.Timeline items={props.items} />,
+});
+
+const Steps = defineComponent({
+  name: "Steps",
+  description: "better-design steps. Signature: Steps(steps, currentStep, orientation?).",
+  props: z.object({
+    steps: z.array(z.object({ title: z.string(), description: z.string().optional() })),
+    currentStep: z.number().int().min(0),
+    orientation: z.enum(["horizontal", "vertical"]).default("horizontal"),
+  }),
+  component: ({ props }) => <BD.Steps steps={props.steps} currentStep={props.currentStep} orientation={props.orientation} />,
+});
+
+const Rating = defineComponent({
+  name: "Rating",
+  description: "better-design rating. Signature: Rating(value?, max?, size?). Static readonly rendering.",
+  props: z.object({
+    value: z.number().min(0).default(0),
+    max: z.number().int().positive().default(5),
+    size: z.enum(["sm", "md", "lg"]).default("md"),
+  }),
+  component: ({ props }) => <BD.Rating value={props.value} max={props.max} size={props.size} />,
+});
+
+const Notification = defineComponent({
+  name: "Notification",
+  description: "better-design notification. Signature: Notification(title, description?, variant?, unread?).",
+  props: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    variant: z.enum(["default", "success", "warning", "destructive"]).default("default"),
+    unread: z.boolean().default(false),
+  }),
+  component: ({ props }) => <BD.Notification title={props.title} description={props.description} variant={props.variant} unread={props.unread} />,
+});
+
 export const canvasDockLibrary = createLibrary({
   components: [
     SectionHeader,
@@ -279,5 +409,16 @@ export const canvasDockLibrary = createLibrary({
     Tooltip,
     Pagination,
     Skeleton,
+    Input,
+    Textarea,
+    Field,
+    SimpleTable,
+    ScrollArea,
+    StatusIndicator,
+    Spinner,
+    Timeline,
+    Steps,
+    Rating,
+    Notification,
   ],
 });
