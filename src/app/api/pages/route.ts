@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createPage, listPages, PageKindSchema } from "@/lib/store";
-import { readGlobalConfig, getProject } from "@/lib/config";
+import { readGlobalConfig, getProject, TtlSecondsSchema } from "@/lib/config";
 import { isValidThemeId } from "@/lib/themes";
 import { logger, withApiLogging } from "@/lib/logger";
 
@@ -14,7 +14,7 @@ const BodySchema = z.object({
   theme: z.string().optional(),
   title: z.string().optional(),
   payload: z.unknown(),
-  ttlSeconds: z.number().int().positive().nullable().optional(),
+  ttlSeconds: TtlSecondsSchema.nullable().optional(),
 });
 
 export async function GET(req: NextRequest) {

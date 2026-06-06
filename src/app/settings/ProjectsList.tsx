@@ -17,6 +17,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { ProjectConfig } from "@/lib/config";
 import type { ThemeManifest } from "@/lib/themes";
+import { formatTtlSeconds, INHERIT_TTL_VALUE, TTL_PRESETS } from "@/lib/ttl";
 
 const INHERIT_THEME = "__inherit";
 
@@ -30,7 +31,7 @@ function draftFromProject(project: ProjectConfig): ProjectDraft {
   return {
     label: project.label,
     theme: project.theme ?? INHERIT_THEME,
-    ttlSeconds: project.ttlSeconds == null ? "" : String(project.ttlSeconds),
+    ttlSeconds: project.ttlSeconds == null ? INHERIT_TTL_VALUE : String(project.ttlSeconds),
   };
 }
 
@@ -38,14 +39,49 @@ function serializeDraft(draft: ProjectDraft) {
   return {
     label: draft.label.trim() || undefined,
     theme: draft.theme === INHERIT_THEME ? null : draft.theme,
-    ttlSeconds: draft.ttlSeconds === "" ? null : Number(draft.ttlSeconds),
+    ttlSeconds: draft.ttlSeconds === INHERIT_TTL_VALUE ? null : Number(draft.ttlSeconds),
   };
+}
+
+function ttlPayloadValue(value: string) {
+  if (value === INHERIT_TTL_VALUE) return undefined;
+  return Number(value);
+}
+
+function TtlSelect({
+  value,
+  onValueChange,
+  className,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+  className?: string;
+}) {
+  return (
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger className={className}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={INHERIT_TTL_VALUE}>inherit</SelectItem>
+        {TTL_PRESETS.map((option) => (
+          <SelectItem key={option.value} value={String(option.value)}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 }
 
 export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; themes: ThemeManifest[] }) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
-  const [draft, setDraft] = useState<ProjectDraft>({ label: "", theme: INHERIT_THEME, ttlSeconds: "" });
+  const [draft, setDraft] = useState<ProjectDraft>({
+    label: "",
+    theme: INHERIT_THEME,
+    ttlSeconds: INHERIT_TTL_VALUE,
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<ProjectDraft | null>(null);
   const [pending, startTransition] = useTransition();
@@ -58,11 +94,11 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
         body: JSON.stringify({
           label: draft.label || undefined,
           theme: draft.theme === INHERIT_THEME ? undefined : draft.theme,
-          ttlSeconds: draft.ttlSeconds === "" ? undefined : Number(draft.ttlSeconds),
+          ttlSeconds: ttlPayloadValue(draft.ttlSeconds),
         }),
       });
       if (res.ok) {
-        setDraft({ label: "", theme: INHERIT_THEME, ttlSeconds: "" });
+        setDraft({ label: "", theme: INHERIT_THEME, ttlSeconds: INHERIT_TTL_VALUE });
         setAdding(false);
         router.refresh();
       }
@@ -109,14 +145,14 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
           No projects yet. Projects let you override theme and TTL per AI/use case.
         </CardContent>
       ) : (
-        <CardContent className="p-0">
-          <Table>
+        <CardContent className="overflow-x-auto p-0">
+          <Table className="min-w-max table-auto">
             <TableHeader className="bg-muted/40 text-xs uppercase tracking-wide">
               <TableRow>
                 <TableHead>Label</TableHead>
                 <TableHead>Theme</TableHead>
                 <TableHead>TTL</TableHead>
-                <TableHead className="w-[220px]" />
+                <TableHead className="w-px" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -126,6 +162,7 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
                     <>
                       <TableCell>
                         <Input
+                          className="w-[16rem] max-w-[32vw]"
                           value={editDraft.label}
                           onChange={(e) => setEditDraft({ ...editDraft, label: e.target.value })}
                         />
@@ -135,7 +172,7 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
                           value={editDraft.theme}
                           onValueChange={(theme) => setEditDraft({ ...editDraft, theme })}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="w-[14rem] max-w-[30vw]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -149,20 +186,18 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <Input
-                          type="number"
-                          min={1}
-                          placeholder="inherit"
+                        <TtlSelect
                           value={editDraft.ttlSeconds}
-                          onChange={(e) => setEditDraft({ ...editDraft, ttlSeconds: e.target.value })}
+                          onValueChange={(ttlSeconds) => setEditDraft({ ...editDraft, ttlSeconds })}
+                          className="w-[8rem]"
                         />
                       </TableCell>
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
-                          <Button type="button" onClick={() => saveEdit(p.id)} disabled={pending}>
+                      <TableCell className="whitespace-nowrap">
+                        <div className="flex flex-nowrap justify-end gap-1">
+                          <Button type="button" size="sm" onClick={() => saveEdit(p.id)} disabled={pending}>
                             Save
                           </Button>
-                          <Button type="button" variant="outline" onClick={cancelEdit} disabled={pending}>
+                          <Button type="button" size="sm" variant="outline" onClick={cancelEdit} disabled={pending}>
                             Cancel
                           </Button>
                         </div>
@@ -170,7 +205,7 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
                     </>
                   ) : (
                     <>
-                      <TableCell>{p.label}</TableCell>
+                      <TableCell className="max-w-[18rem] truncate">{p.label}</TableCell>
                       <TableCell>
                         {p.theme ? (
                           <Badge variant="secondary">{p.theme}</Badge>
@@ -179,22 +214,33 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
                         )}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        {p.ttlSeconds == null ? "inherit" : `${p.ttlSeconds}s`}
+                        {formatTtlSeconds(p.ttlSeconds)}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
-                          <Button type="button" variant="outline" onClick={() => beginEdit(p)} disabled={pending}>
+                      <TableCell className="whitespace-nowrap">
+                        <div className="flex flex-nowrap justify-end gap-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-8"
+                            title="Edit"
+                            aria-label={`Edit ${p.label}`}
+                            onClick={() => beginEdit(p)}
+                            disabled={pending}
+                          >
                             <Pencil />
-                            Edit
                           </Button>
                           <Button
                             type="button"
                             variant="destructive"
+                            size="icon"
+                            className="size-8"
+                            title="Delete"
+                            aria-label={`Delete ${p.label}`}
                             onClick={() => remove(p.id)}
                             disabled={pending}
                           >
                             <Trash2 />
-                            Delete
                           </Button>
                         </div>
                       </TableCell>
@@ -209,14 +255,15 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
 
       <CardFooter className="border-t p-4">
         {adding ? (
-          <div className="grid w-full gap-2 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
+          <div className="grid w-full grid-cols-1 gap-2 lg:grid-cols-[minmax(12rem,1.15fr)_minmax(12rem,1fr)_minmax(10rem,0.75fr)_auto_auto]">
             <Input
+              className="min-w-0"
               placeholder="label"
               value={draft.label}
               onChange={(e) => setDraft({ ...draft, label: e.target.value })}
             />
             <Select value={draft.theme} onValueChange={(theme) => setDraft({ ...draft, theme })}>
-              <SelectTrigger>
+              <SelectTrigger className="min-w-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -228,12 +275,10 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
                 ))}
               </SelectContent>
             </Select>
-            <Input
-              type="number"
-              min={1}
-              placeholder="TTL seconds (inherit)"
+            <TtlSelect
               value={draft.ttlSeconds}
-              onChange={(e) => setDraft({ ...draft, ttlSeconds: e.target.value })}
+              onValueChange={(ttlSeconds) => setDraft({ ...draft, ttlSeconds })}
+              className="min-w-0"
             />
             <Button
               type="button"
@@ -246,7 +291,7 @@ export function ProjectsList({ projects, themes }: { projects: ProjectConfig[]; 
               type="button"
               variant="outline"
               onClick={() => {
-                setDraft({ label: "", theme: INHERIT_THEME, ttlSeconds: "" });
+                setDraft({ label: "", theme: INHERIT_THEME, ttlSeconds: INHERIT_TTL_VALUE });
                 setAdding(false);
               }}
             >

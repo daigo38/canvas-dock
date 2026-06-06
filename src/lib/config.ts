@@ -7,10 +7,11 @@ const DATA_DIR = path.resolve(process.cwd(), "data");
 const CONFIG_PATH = path.join(DATA_DIR, "config.json");
 const PROJECTS_DIR = path.join(DATA_DIR, "projects");
 const createProjectId = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
+export const TtlSecondsSchema = z.union([z.number().int().positive(), z.literal(-1)]);
 
 export const GlobalConfigSchema = z.object({
   defaultTheme: z.string().default("vercel"),
-  defaultTtlSeconds: z.number().int().positive().nullable().default(60 * 60 * 24 * 7),
+  defaultTtlSeconds: z.preprocess((value) => (value === null ? -1 : value), TtlSecondsSchema.default(60 * 60 * 24 * 7)),
   auth: z.enum(["none", "token"]).default("none"),
   authToken: z.string().optional(),
   cleanupIntervalSeconds: z.number().int().positive().default(60 * 60),
@@ -21,8 +22,8 @@ export type GlobalConfig = z.infer<typeof GlobalConfigSchema>;
 export const ProjectConfigSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
-  theme: z.string().optional(),
-  ttlSeconds: z.number().int().positive().nullable().optional(),
+  theme: z.preprocess((value) => (value === "default" || value === null ? undefined : value), z.string().optional()),
+  ttlSeconds: TtlSecondsSchema.nullable().optional(),
   visibility: z.enum(["local", "shareable"]).default("local"),
   createdAt: z.string(),
 });

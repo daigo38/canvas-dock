@@ -4,12 +4,24 @@ import { useState, type MouseEvent } from "react";
 import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function CopyButton({ value, label = "Copy URL" }: { value: string; label?: string }) {
+export function CopyButton({
+  value,
+  label = "Copy URL",
+  iconOnly = false,
+}: {
+  value: string;
+  label?: string;
+  iconOnly?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <Button
       type="button"
       variant="outline"
+      size={iconOnly ? "icon" : "default"}
+      className={iconOnly ? "size-8" : undefined}
+      title={copied ? "Copied" : label}
+      aria-label={copied ? "Copied" : label}
       onClick={async (e: MouseEvent<HTMLButtonElement>) => {
         // Defensive: when this button sits inside a wrapping <Link>, stop the
         // click from triggering navigation.
@@ -25,7 +37,7 @@ export function CopyButton({ value, label = "Copy URL" }: { value: string; label
       }}
     >
       {copied ? <Check /> : <Copy />}
-      {copied ? "Copied" : label}
+      {!iconOnly && (copied ? "Copied" : label)}
     </Button>
   );
 }

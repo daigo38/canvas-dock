@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { deleteProject, getProject, upsertProject } from "@/lib/config";
+import { deleteProject, getProject, TtlSecondsSchema, upsertProject } from "@/lib/config";
 import { logger, withApiLogging } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 const ProjectUpdateSchema = z.object({
   label: z.string().trim().min(1).optional(),
   theme: z.string().nullable().optional(),
-  ttlSeconds: z.number().int().positive().nullable().optional(),
+  ttlSeconds: TtlSecondsSchema.nullable().optional(),
   visibility: z.enum(["local", "shareable"]).optional(),
 });
 

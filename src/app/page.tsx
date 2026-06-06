@@ -4,7 +4,6 @@ import { AppShell } from "@/components/app/AppShell";
 import { CopyButton } from "@/components/app/CopyButton";
 import { DeletePageButton } from "@/components/app/DeletePageButton";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { listPages } from "@/lib/store";
 import { listProjects } from "@/lib/config";
@@ -25,21 +24,22 @@ export default async function Dashboard() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Hosted pages</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="mt-1 text-sm text-muted-foreground">
             {pages.length} active · {THEMES.length} themes · {projects.length} projects
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="h-9 px-3 font-mono font-normal text-muted-foreground">
-            MCP {mcpUrl}
+        <div className="flex min-w-0 items-center gap-2 sm:max-w-[min(42rem,55vw)]">
+          <Badge
+            variant="secondary"
+            className="h-9 min-w-0 max-w-full gap-2 px-3 font-mono font-normal text-muted-foreground"
+          >
+            <span className="shrink-0">MCP</span>
+            <span className="min-w-0 overflow-x-auto whitespace-nowrap [scrollbar-width:thin]">{mcpUrl}</span>
           </Badge>
-          <CopyButton value={mcpUrl} label="Copy MCP URL" />
-          <Button asChild variant="outline">
-            <Link href="/settings">Settings</Link>
-          </Button>
+          <CopyButton value={mcpUrl} label="Copy MCP URL" iconOnly />
         </div>
       </div>
 

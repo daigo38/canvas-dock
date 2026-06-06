@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/select";
 import type { GlobalConfig } from "@/lib/config";
 import type { ThemeManifest } from "@/lib/themes";
+import { TTL_PRESETS } from "@/lib/ttl";
 
 export function SettingsForm({ config, themes }: { config: GlobalConfig; themes: ThemeManifest[] }) {
   const [form, setForm] = useState({
     defaultTheme: config.defaultTheme,
-    defaultTtlSeconds: config.defaultTtlSeconds ?? "",
+    defaultTtlSeconds: String(config.defaultTtlSeconds),
     auth: config.auth,
     authToken: config.authToken ?? "",
   });
@@ -38,7 +39,7 @@ export function SettingsForm({ config, themes }: { config: GlobalConfig; themes:
                 headers: { "content-type": "application/json" },
                 body: JSON.stringify({
                   defaultTheme: form.defaultTheme,
-                  defaultTtlSeconds: form.defaultTtlSeconds === "" ? null : Number(form.defaultTtlSeconds),
+                  defaultTtlSeconds: Number(form.defaultTtlSeconds),
                   auth: form.auth,
                   authToken: form.authToken || undefined,
                 }),
@@ -69,17 +70,23 @@ export function SettingsForm({ config, themes }: { config: GlobalConfig; themes:
 
           <div className="grid gap-2">
             <Label htmlFor="default-ttl" className="text-xs text-muted-foreground">
-              Default TTL (seconds, blank = never expire)
+              Default TTL
             </Label>
-            <Input
-              id="default-ttl"
-              type="number"
-              min={0}
+            <Select
               value={form.defaultTtlSeconds}
-              onChange={(e) => setForm({ ...form, defaultTtlSeconds: e.target.value })}
-              className="font-mono"
-              placeholder="604800"
-            />
+              onValueChange={(defaultTtlSeconds) => setForm({ ...form, defaultTtlSeconds })}
+            >
+              <SelectTrigger id="default-ttl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TTL_PRESETS.map((option) => (
+                  <SelectItem key={option.value} value={String(option.value)}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">

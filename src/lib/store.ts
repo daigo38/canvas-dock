@@ -3,6 +3,7 @@ import path from "node:path";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { getPresetPage, PRESET_PAGES } from "./presetPages";
+import { NEVER_TTL_SECONDS } from "./ttl";
 
 const PAGES_DIR = path.resolve(process.cwd(), "data", "pages");
 
@@ -39,7 +40,7 @@ export async function createPage(input: Omit<PageRecord, "slug" | "createdAt" | 
   const slug = generateSlug();
   const now = new Date();
   const expiresAt =
-    input.ttlSeconds === null || input.ttlSeconds === undefined
+    input.ttlSeconds === NEVER_TTL_SECONDS || input.ttlSeconds === null || input.ttlSeconds === undefined
       ? null
       : new Date(now.getTime() + input.ttlSeconds * 1000).toISOString();
   const record: PageRecord = PageRecordSchema.parse({

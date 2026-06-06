@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createPage, deletePage, listPages, updatePagePayload } from "@/lib/store";
-import { getProject, listProjects, readGlobalConfig } from "@/lib/config";
+import { getProject, listProjects, readGlobalConfig, TtlSecondsSchema } from "@/lib/config";
 import { isValidThemeId, THEMES } from "@/lib/themes";
 import { A2UIPayloadSchema } from "@/renderer/a2ui/schema";
 import { OPENUI_SPEC, A2UI_SPEC } from "./specs";
@@ -47,7 +47,7 @@ export function buildMcpServer(origin: string) {
         project: z.string().optional().describe("Project id to inherit theme/TTL from."),
         theme: z.string().optional().describe("Theme id override (see list_themes)."),
         title: z.string().optional(),
-        ttlSeconds: z.number().int().positive().nullable().optional(),
+        ttlSeconds: TtlSecondsSchema.nullable().optional(),
       },
     },
     async ({ source, project, theme, title, ttlSeconds }) => {
@@ -66,7 +66,7 @@ export function buildMcpServer(origin: string) {
         project: z.string().optional(),
         theme: z.string().optional(),
         title: z.string().optional(),
-        ttlSeconds: z.number().int().positive().nullable().optional(),
+        ttlSeconds: TtlSecondsSchema.nullable().optional(),
       },
     },
     async ({ payload, project, theme, title, ttlSeconds }) => {
