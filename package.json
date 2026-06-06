@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "fetch:themes": "node --experimental-strip-types scripts/fetch-themes.ts"
+    "fetch:themes": "node --experimental-strip-types scripts/fetch-themes.ts",
+    "install:better-design": "node --experimental-strip-types scripts/install-better-design.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

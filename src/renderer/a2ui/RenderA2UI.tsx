@@ -2,15 +2,24 @@
 
 import * as React from "react";
 import {
-  Stack,
   Heading,
   Text,
   Card,
-  Stat,
+  StatCard,
   Chart,
   DataTable,
-  Divider,
+  Separator,
   Badge,
+  Alert,
+  Button,
+  SectionHeader,
+  Progress,
+  Empty,
+  Avatar,
+  Kbd,
+  Code,
+  CodeBlock,
+  Quote,
 } from "@/renderer/shared/themed";
 import {
   A2UIPayload,
@@ -43,47 +52,54 @@ function renderComponent(
   ));
 
   switch (c.type) {
+    case "SectionHeader":
+      return (
+        <SectionHeader
+          title={String(p.title ?? "")}
+          description={p.description as string | undefined}
+          size={(p.size as "sm" | "md" | "lg") ?? "md"}
+        />
+      );
     case "Text":
-      return <Text muted={Boolean(p.muted)}>{String(p.text ?? "")}</Text>;
+      return <Text variant={(p.variant as "p" | "lead" | "muted" | "large" | "small") ?? "p"}>{String(p.text ?? "")}</Text>;
     case "Heading":
       return <Heading level={(p.level as 1 | 2 | 3 | 4) ?? 2}>{String(p.text ?? "")}</Heading>;
-    case "Column":
-      return (
-        <Stack
-          direction="column"
-          gap={(p.gap as number) ?? 4}
-          align={(p.align as "start" | "center" | "end" | "stretch") ?? "stretch"}
-          justify={(p.justify as "start" | "center" | "end" | "between") ?? "start"}
-        >
-          {kids}
-        </Stack>
-      );
-    case "Row":
-      return (
-        <Stack
-          direction="row"
-          gap={(p.gap as number) ?? 4}
-          align={(p.align as "start" | "center" | "end" | "stretch") ?? "center"}
-          justify={(p.justify as "start" | "center" | "end" | "between") ?? "start"}
-          // Leave undefined when caller didn't specify — Stack defaults row→wrap on mobile.
-          wrap={p.wrap === undefined ? undefined : Boolean(p.wrap)}
-        >
-          {kids}
-        </Stack>
-      );
+    case "Quote":
+      return <Quote>{String(p.text ?? "")}</Quote>;
+    case "Code":
+      return <Code>{String(p.text ?? "")}</Code>;
+    case "CodeBlock":
+      return <CodeBlock code={String(p.code ?? "")} language={p.language as string | undefined} filename={p.filename as string | undefined} />;
     case "Card":
       return (
         <Card title={p.title as string | undefined} description={p.description as string | undefined}>
           {kids}
         </Card>
       );
-    case "Stat":
+    case "Alert":
       return (
-        <Stat
+        <Alert title={p.title as string | undefined} variant={(p.variant as "default" | "destructive") ?? "default"}>
+          {kids}
+        </Alert>
+      );
+    case "Button":
+      return (
+        <Button
+          text={String(p.text ?? "")}
+          variant={(p.variant as "default" | "secondary" | "outline" | "ghost" | "destructive" | "link") ?? "default"}
+          size={(p.size as "sm" | "default" | "lg") ?? "default"}
+          href={p.href as string | undefined}
+          external={Boolean(p.external)}
+        />
+      );
+    case "StatCard":
+      return (
+        <StatCard
           label={String(p.label ?? "")}
           value={(p.value as string | number) ?? ""}
-          delta={p.delta as string | undefined}
-          trend={p.trend as "up" | "down" | "flat" | undefined}
+          change={p.change as string | number | undefined}
+          trend={(p.trend as "up" | "down" | "neutral") ?? "neutral"}
+          description={p.description as string | undefined}
         />
       );
     case "Chart":
@@ -99,26 +115,25 @@ function renderComponent(
         />
       );
     case "Table":
+    case "DataTable":
       return (
         <DataTable
-          columns={(p.columns as { key: string; label: string; align?: "left" | "right" | "center" }[]) ?? []}
-          rows={(p.rows as Record<string, string | number>[]) ?? []}
+          columns={(p.columns as { key: string; header: string; sortable?: boolean }[]) ?? []}
+          rows={(p.rows as Record<string, unknown>[]) ?? []}
         />
       );
-    case "Divider":
-      return <Divider />;
+    case "Separator":
+      return <Separator />;
     case "Badge":
-      return <Badge tone={(p.tone as "default" | "success" | "warn" | "error") ?? "default"}>{String(p.text ?? "")}</Badge>;
-    case "Image":
-      return <img src={String(p.src ?? "")} alt={String(p.alt ?? "")} className="rounded-md max-w-full" />;
-    case "List":
-      return (
-        <ul className="list-disc pl-6 space-y-1 text-sm">
-          {kids.map((k, i) => (
-            <li key={i}>{k}</li>
-          ))}
-        </ul>
-      );
+      return <Badge variant={(p.variant as string) ?? "default"} size={(p.size as "sm" | "default" | "lg") ?? "default"} text={String(p.text ?? "")} />;
+    case "Progress":
+      return <Progress value={(p.value as number) ?? 0} />;
+    case "Empty":
+      return <Empty title={String(p.title ?? "")} description={p.description as string | undefined} />;
+    case "Avatar":
+      return <Avatar name={String(p.name ?? "")} src={p.src as string | undefined} />;
+    case "Kbd":
+      return <Kbd>{String(p.text ?? "")}</Kbd>;
     default:
       return <UnknownComponent reason={`Unknown component type "${c.type}"`} />;
   }
@@ -144,7 +159,7 @@ export function RenderA2UI({ payload }: { payload: unknown }) {
     return <div className="p-4 text-sm text-muted-foreground">No surface to render.</div>;
   }
   return (
-    <div className="flex flex-col gap-8 p-4 sm:p-6 md:p-10 w-full max-w-full overflow-x-clip">
+    <div className="flex flex-col gap-8 w-full max-w-full overflow-x-clip">
       {surfaceIds.map((sid) => {
         const surface = state.surfaces[sid];
         const components = state.components[sid] ?? {};

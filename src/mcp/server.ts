@@ -10,17 +10,21 @@ const RENDER_OPENUI_DESC = `Render OpenUI Lang text into a hosted Canvas Dock pa
 
 Use this when an AI agent has finished assembling a report/dashboard as OpenUI Lang
 and wants to give the user a shareable URL. OpenUI Lang is a line-oriented format:
-\`id = ComponentName(propA: ..., propB: ...)\`. A page must have a \`root = ...\`.
+\`id = ComponentName(arg1, arg2, ...)\`. A page must have a \`root = ...\`.
 
-Available components: Stack, Heading, Text, Card, Stat, Chart (bar/line/pie),
-Table, Divider, Badge. Full grammar at resource \`openui://spec/lang\`.`;
+Available components are limited to better-design-backed entries such as
+SectionHeader, Card, Text, Heading, Button, Badge, Alert, StatCard, DataTable,
+Chart, Progress, Empty, Avatar, Tabs, Accordion, Breadcrumb, Tooltip,
+Pagination, Skeleton. Do not use Stack, Grid, Hero, Image, Video, or Iframe.
+Full grammar at resource \`openui://spec/lang\`.`;
 
 const RENDER_A2UI_DESC = `Render an A2UI v0.8 payload into a hosted Canvas Dock page and return a URL.
 
 Payload shape: { messages: [...] } where messages are { type: "createSurface" |
 "updateComponents" | "updateDataModel" | "deleteSurface", ... }. Component types
-in the canvas-dock catalog: Text, Heading, Row, Column, List, Card, Stat, Chart,
-Table, Divider, Badge, Image. Props may be literals or binding objects
+in the canvas-dock catalog are limited to better-design-backed entries:
+SectionHeader, Card, Text, Heading, Button, Badge, Alert, StatCard, DataTable,
+Chart, Progress, Empty, Avatar, Kbd, Code, CodeBlock, Separator. Props may be literals or binding objects
 { literal: ... } / { path: "/..." }. Full schema at resource \`a2ui://spec/v0.8\`.`;
 
 export function buildMcpServer(origin: string) {

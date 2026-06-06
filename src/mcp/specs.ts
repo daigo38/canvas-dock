@@ -1,87 +1,102 @@
 // Inline spec documentation served via MCP resources.
-// Kept short so the LLM can pull the full text and still afford the cost.
+// The catalog intentionally mirrors better-design registry component slugs.
 
-export const OPENUI_SPEC = `# Canvas Dock — OpenUI Lang component library
+export const OPENUI_SPEC = `# Canvas Dock — Better Design OpenUI catalog
 
-Canvas Dock renders OpenUI Lang into a hosted report URL. Use the library below.
-Compose with line-oriented assignments: \`id = ComponentName(arg1, arg2, ...)\`.
+Canvas Dock renders OpenUI Lang into a hosted report URL. The renderer only
+accepts components backed by better-design registry entries. Do not invent
+layout or display components such as Stack, Grid, Hero, Image, Video, or Iframe.
+
+OpenUI Lang is line-oriented:
+\`id = ComponentName(arg1, arg2, ...)\`
 
 CRITICAL: OpenUI Lang uses POSITIONAL arguments only. Do NOT use \`name: value\`
-colon syntax — it silently breaks. Each component's signature below shows the
-positional order; trailing optional args may be omitted.
+colon syntax. A page must define \`root = ...\`.
 
 ## Components
 
-- Stack(children, direction?, gap?, align?, justify?, wrap?)
-  - children: [id, id, ...]
-  - direction: "row" | "column" (default "column")
-  - gap: 0..16 (default 4)
-  - align: "start" | "center" | "end" | "stretch" (default "stretch")
-  - justify: "start" | "center" | "end" | "between" (default "start")
-  - wrap: boolean (row layouts wrap by default)
-- Heading(text, level?)            level ∈ 1|2|3|4 (default 2)
-- Text(text, muted?)               muted: boolean
-- Card(children, title?, description?)
-- Stat(label, value, delta?, trend?)    trend ∈ "up"|"down"|"flat"
-- Chart(type, data, xKey?, yKey?, nameKey?, valueKey?, height?)
-  - type ∈ "bar"|"line"|"pie"; data=[{...}]; yKey is string or [string,...]
-- Table(columns, rows)             columns=[{key,label,align?}], rows=[{...}]
-- Divider()
-- Badge(text, tone?)               tone ∈ "default"|"success"|"warn"|"error"
+- SectionHeader(title, description?, size?)        // better-design section-header; size: sm|md|lg
+- Card(children, title?, description?)            // better-design card
+- Text(text, variant?)                            // better-design typography; variant: p|lead|muted|large|small
+- Heading(text, level?)                           // better-design typography; level: 1|2|3|4
+- Quote(text)
+- Code(text)
+- CodeBlock(code, language?, filename?)
+- Button(text, variant?, size?, href?, external?) // variant: default|secondary|outline|ghost|destructive|link; size: sm|default|lg
+- Badge(text, variant?, size?)                    // better-design badge variants, e.g. default|primary|success|warning|destructive|outline
+- Alert(children, title?, variant?)               // variant: default|destructive
+- Separator()
+- StatCard(label, value, change?, trend?, description?) // trend: up|down|neutral
+- DataTable(columns, rows)                        // columns=[{key, header, sortable?}], rows=[{...}]
+- Chart(type, data, xKey?, yKey?, nameKey?, valueKey?, height?) // type: bar|line|pie
+- Progress(value)
+- Empty(title, description?)
+- Avatar(name, src?)
+- Kbd(text)
+- Tabs(items)                                     // items=[{label, content}]
+- Accordion(items)                                // items=[{title, content}]
+- Breadcrumb(items)                               // items=[{text, href?}]
+- Tooltip(text, hint)
+- Pagination(current, total)
+- Skeleton(width?, height?)
 
 ## Example
 
-root = Stack([hdr, kpis, sales, table], "column", 6)
-hdr = Heading("Q2 Sales", 1)
-kpis = Stack([s1, s2, s3], "row", 4)
-s1 = Stat("Revenue", "$1.2M", "+12%", "up")
-s2 = Stat("New Customers", 312, "+8%", "up")
-s3 = Stat("Churn", "2.1%", "-0.4pp", "down")
-sales = Card([chart], "Monthly")
+root = Card([hdr, summary, revenue, chart, table], "Q2 Sales", "better-design only")
+hdr = SectionHeader("Q2 Sales", "A compact report rendered with vendored better-design components", "lg")
+summary = Text("All visible components come from the selected better-design theme.", "muted")
+revenue = StatCard("Revenue", "$1.2M", "+12%", "up", "vs previous quarter")
 chart = Chart("bar", [{name: "Jan", value: 32}, {name: "Feb", value: 41}], "name", "value")
-table = Table([{key: "region", label: "Region"}, {key: "amount", label: "Amount", align: "right"}], [{region: "JP", amount: "$420k"}])
+table = DataTable([{key: "region", header: "Region", sortable: true}, {key: "amount", header: "Amount"}], [{region: "JP", amount: "$420k"}])
 `;
 
-export const A2UI_SPEC = `# Canvas Dock — A2UI v0.8 payload
+export const A2UI_SPEC = `# Canvas Dock — Better Design A2UI catalog
 
-A2UI payload is { messages: [...] }. Send messages in order. Surface ids are arbitrary strings.
+A2UI payload is { messages: [...] }. Canvas Dock only accepts component types
+backed by better-design registry entries. Do not send Row, Column, Stack, Grid,
+List, Hero, Image, Video, Iframe, or other Canvas Dock invented components.
 
 ## Messages
 
 - { type: "createSurface", surfaceId: "main", catalogId: "canvas-dock", root: "<rootComponentId>" }
 - { type: "updateComponents", surfaceId: "main", components: [{id, type, props, children?: [ids]}] }
-- { type: "updateDataModel", surfaceId: "main", path: "/", value: {...} }      // path defaults to "/"
+- { type: "updateDataModel", surfaceId: "main", path: "/", value: {...} }
 - { type: "deleteSurface", surfaceId: "main" }
 
-## Component types (Canvas Dock catalog "canvas-dock")
+## Component types
 
-- Text({text, muted?})
-- Heading({level: 1|2|3|4, text})
-- Column({gap?, align?, justify?})            — children stack vertically
-- Row({gap?, align?, justify?, wrap?})         — children stack horizontally
-- List({})                                     — children rendered as bullet list
-- Card({title?, description?})
-- Stat({label, value, delta?, trend?})
-- Chart({type: "bar"|"line"|"pie", data, xKey?, yKey?, nameKey?, valueKey?, height?})
-- Table({columns: [{key,label,align?}], rows: [{...}]})
-- Divider({})
-- Badge({text, tone?})
-- Image({src, alt?})
+- SectionHeader({title, description?, size?})
+- Card({title?, description?})                    // children allowed
+- Text({text, variant?})
+- Heading({text, level?})
+- Quote({text})
+- Code({text})
+- CodeBlock({code, language?, filename?})
+- Button({text, variant?, size?, href?, external?})
+- Badge({text, variant?, size?})
+- Alert({title?, variant?})                       // children allowed
+- Separator({})
+- StatCard({label, value, change?, trend?, description?})
+- Chart({type, data, xKey?, yKey?, nameKey?, valueKey?, height?})
+- DataTable({columns, rows})
+- Progress({value})
+- Empty({title, description?})
+- Avatar({name, src?})
+- Kbd({text})
 
 Any prop value may be either a literal, or a binding object:
-  { literal: ... }   — explicit literal value
-  { path: "/foo/bar" } — JSON Pointer into the data model
+  { literal: ... }      // explicit literal value
+  { path: "/foo/bar" }  // JSON Pointer into the data model
 
 ## Example
 
 {
   "messages": [
     { "type": "createSurface", "surfaceId": "main", "catalogId": "canvas-dock", "root": "root" },
-    { "type": "updateDataModel", "surfaceId": "main", "value": { "revenue": "$1.2M" } },
     { "type": "updateComponents", "surfaceId": "main", "components": [
-      { "id": "root", "type": "Column", "props": {"gap": 6}, "children": ["title", "rev"] },
-      { "id": "title", "type": "Heading", "props": {"level": 1, "text": "Q2 Sales"} },
-      { "id": "rev", "type": "Stat", "props": {"label": "Revenue", "value": {"path": "/revenue"}} }
+      { "id": "root", "type": "Card", "props": {"title": "Q2 Sales"}, "children": ["hdr", "rev"] },
+      { "id": "hdr", "type": "SectionHeader", "props": {"title": "Q2 Sales", "size": "lg"} },
+      { "id": "rev", "type": "StatCard", "props": {"label": "Revenue", "value": "$1.2M", "change": "+12%", "trend": "up"} }
     ]}
   ]
 }

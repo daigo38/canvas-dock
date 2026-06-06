@@ -9,7 +9,7 @@ const PROJECTS_DIR = path.join(DATA_DIR, "projects");
 const createProjectId = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
 
 export const GlobalConfigSchema = z.object({
-  defaultTheme: z.string().default("default"),
+  defaultTheme: z.string().default("vercel"),
   defaultTtlSeconds: z.number().int().positive().nullable().default(60 * 60 * 24 * 7),
   auth: z.enum(["none", "token"]).default("none"),
   authToken: z.string().optional(),
@@ -42,7 +42,13 @@ export async function readGlobalConfig(): Promise<GlobalConfig> {
   await ensureDirs();
   try {
     const raw = await fs.readFile(CONFIG_PATH, "utf8");
-    return GlobalConfigSchema.parse(JSON.parse(raw));
+    const parsed = GlobalConfigSchema.parse(JSON.parse(raw));
+    if (parsed.defaultTheme === "default") {
+      const migrated = { ...parsed, defaultTheme: "vercel" };
+      await fs.writeFile(CONFIG_PATH, JSON.stringify(migrated, null, 2));
+      return migrated;
+    }
+    return parsed;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === "ENOENT") {
       const def = GlobalConfigSchema.parse({});

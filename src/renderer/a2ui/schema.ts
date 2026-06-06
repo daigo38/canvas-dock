@@ -11,8 +11,6 @@ export const DynamicValueSchema = z.union([
 ]);
 export type DynamicValue = z.infer<typeof DynamicValueSchema>;
 
-const valueOrDynamic = <S extends z.ZodTypeAny>(s: S) => z.union([s, DynamicValueSchema]);
-
 // Each component is { id, type, props, children? }.
 // children is an array of component ids (string) — the spec uses flat lists
 // with id references; we keep this contract.

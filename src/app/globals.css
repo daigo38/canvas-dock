@@ -4,9 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Default (shadcn) theme. Applies on :root and explicitly on .theme-default. */
-:root,
-.theme-default {
+/* Base app variables. Rendered page themes come from better-design only. */
+:root {
   --radius: 0.5rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

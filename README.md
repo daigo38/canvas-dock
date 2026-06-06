@@ -11,7 +11,9 @@ Use case: a local agent finishes a research task and wants to share the rendered
 - ✅ MCP server at `/api/mcp` (Streamable HTTP)
 - ✅ REST at `/api/pages`
 - ✅ Settings UI with global defaults and project overrides
-- ✅ 7 themes vendored: `default` (shadcn) plus `linear` / `vercel` / `notion` / `stripe` / `supabase` / `apple` from [better-design](https://github.com/marvkr/better-design). Refresh tokens any time with `pnpm fetch:themes`.
+- ✅ 6 better-design themes vendored: `linear` / `vercel` / `notion` / `stripe` / `supabase` / `apple`.
+- ✅ Render catalog is restricted to better-design-backed components; no Canvas Dock UI fallback.
+- ✅ Refresh better-design components with `pnpm install:better-design`; refresh tokens with `pnpm fetch:themes`.
 - ⚠️ Auth + tailscale serve: documented but not enforced
 
 ## Quickstart
@@ -31,14 +33,14 @@ curl -X POST http://localhost:3000/api/pages \
   -d '{
     "kind": "a2ui",
     "title": "Demo",
-    "theme": "default",
+    "theme": "vercel",
     "payload": {
       "messages": [
         { "type": "createSurface", "surfaceId": "main", "catalogId": "canvas-dock", "root": "root" },
         { "type": "updateComponents", "surfaceId": "main", "components": [
-          { "id": "root", "type": "Column", "props": {"gap": 6}, "children": ["h", "s"] },
-          { "id": "h", "type": "Heading", "props": {"level": 1, "text": "Hello"} },
-          { "id": "s", "type": "Stat", "props": {"label": "Visitors", "value": 1024, "delta": "+12%", "trend": "up"} }
+          { "id": "root", "type": "Card", "props": {"title": "Demo"}, "children": ["h", "s"] },
+          { "id": "h", "type": "SectionHeader", "props": {"title": "Hello", "size": "lg"} },
+          { "id": "s", "type": "StatCard", "props": {"label": "Visitors", "value": 1024, "change": "+12%", "trend": "up"} }
         ]}
       ]
     }
@@ -49,9 +51,9 @@ Response: `{ "slug": "...", "url": "http://localhost:3000/p/...", "expiresAt": "
 
 ### Render the component gallery
 
-`samples/gallery.openui` is a complete tour of every OpenUI Lang component
-Canvas Dock supports (39 components across 6 groups). POST it to your running
-instance to get a single page that shows them all:
+`samples/gallery.openui` is a tour of the supported better-design-backed OpenUI
+Lang catalog. POST it to your running instance to get a single page that shows
+the components in context:
 
 ```bash
 BASE_URL="http://localhost:3000"
@@ -127,10 +129,12 @@ src/
   renderer/
     openui/                   # @openuidev/react-lang library
     a2ui/                     # A2UI v0.8 renderer + zod schemas
-    shared/primitives.tsx     # shared primitives used by both renderers
+    shared/themed.tsx         # better-design-only render adapter; no local UI fallback
   mcp/                        # MCP server (specs + tools/resources)
-themes/<slug>/theme.css       # vendored better-design tokens (.theme-<slug> scope)
-scripts/fetch-themes.ts       # re-pull tokens from better-design.com
+src/themes/<slug>/components/ui/  # vendored better-design TSX components
+src/themes/<slug>/theme.css       # vendored better-design tokens (.theme-<slug> scope)
+scripts/install-better-design.ts  # run shadcn add against better-design registry URLs
+scripts/fetch-themes.ts           # re-pull tokens from better-design.com
 data/                         # runtime data — gitignored
 ```
 
